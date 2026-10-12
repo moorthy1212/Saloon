@@ -1,0 +1,8 @@
+name = "suburaaj-salon"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-10-12"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "suburaaj-salon"
+database_id = "bf3965bf-1403-4e51-8008-8452045ee592"
