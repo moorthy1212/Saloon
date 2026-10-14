@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { DEFAULT_SETTINGS, type OpeningHoursEntry, type ScheduleSettings } from '../shared/schedule'
 import './App.css'
 
@@ -17,8 +17,8 @@ const COPY = {
     navAbout: 'Our approach',
     directions: 'Get directions',
     localSalon: 'YOUR LOCAL SALON',
-    headlineFirst: 'Good hair.',
-    headlineSecond: 'Good feeling.',
+    headlineFirst: 'Suburaaj Saloon',
+    headlineSecond: 'in Palayamkottai.',
     heroDescription: 'Your neighbourhood salon in Palayamkottai, Tirunelveli. Visit us for a fresh haircut, styling, and a friendly welcome.',
     location: 'Palayamkottai, Tirunelveli, Tamil Nadu',
     viewServices: 'View our services',
@@ -53,7 +53,21 @@ const COPY = {
     note: 'A NOTE FROM SUBURAAJ',
     aboutHeadingFirst: 'More than a haircut.',
     aboutHeadingSecond: 'A moment for yourself.',
-    aboutDescription: 'Come as you are. Leave feeling a little more like yourself. That’s the Suburaaj way.',
+    aboutDescription: 'With over 20 years of experience, we welcome you to come as you are and leave feeling a little more like yourself. That’s the Suburaaj way.',
+    chatOpen: 'Chat with SURA',
+    chatClose: 'Close chat',
+    chatTitle: 'SURA Bot',
+    chatStatus: 'Suburaaj Salon · Here to help',
+    chatWelcome: 'Hi! I’m SURA, your salon assistant. Ask me about services, timings, location, or hair care.',
+    chatPlaceholder: 'Type your question…',
+    chatSend: 'Send',
+    chatThinking: 'Thinking…',
+    chatRateLimited: 'You’ve reached the chat limit. Please try again later.',
+    chatPrivacy: 'Questions the FAQ cannot answer are processed by Cloudflare Workers AI. Please do not share personal details.',
+    chatUnavailable: 'Sorry, the assistant is unavailable right now. Please check the website for salon details.',
+    chatQuickServices: 'What services do you offer?',
+    chatQuickHours: 'What are your opening hours?',
+    chatQuickExperience: 'How much experience do you have?',
     brandTagline: 'Good hair days, made together.',
     mapTitle: 'Suburaaj salon location map',
     mapSalon: 'Suburaaj Salon · Palayamkottai',
@@ -75,7 +89,10 @@ const COPY = {
     reset: 'Reset',
     saveChanges: 'Save changes',
     invalidLogin: 'Invalid admin username or password.',
+    loginRateLimited: 'Too many login attempts. Try again later.',
+    loginUnavailable: 'Unable to sign in right now. Please check the site configuration and try again.',
     pageViews: 'Page views',
+    saveSuccess: 'Changes saved successfully.',
     saveFailed: 'Could not save changes. Please sign in again and retry.',
   },
   ta: {
@@ -123,7 +140,21 @@ const COPY = {
     note: 'சுபுராஜிடமிருந்து ஒரு குறிப்பு',
     aboutHeadingFirst: 'முடி வெட்டுதலை விட மேலானது.',
     aboutHeadingSecond: 'உங்களுக்கான ஒரு சிறிய இடைவேளை.',
-    aboutDescription: 'நீங்கள் நீங்களாகவே வாருங்கள். இன்னும் நம்பிக்கையுடன் திரும்பிச் செல்லுங்கள். இதுவே சுபுராஜ் வழி.',
+    aboutDescription: '20 ஆண்டுகளுக்கும் மேலான அனுபவத்துடன், நீங்கள் நீங்களாகவே வாருங்கள். இன்னும் நம்பிக்கையுடன் திரும்பிச் செல்லுங்கள். இதுவே சுபுராஜ் வழி.',
+    chatOpen: 'SURA-விடம் கேளுங்கள்',
+    chatClose: 'உரையாடலை மூடு',
+    chatTitle: 'SURA Bot',
+    chatStatus: 'சுபுராஜ் சலூன் · உதவ தயார்',
+    chatWelcome: 'வணக்கம்! நான் SURA, உங்கள் சலூன் உதவியாளர். சேவைகள், நேரம், இடம் அல்லது முடி பராமரிப்பு பற்றி கேளுங்கள்.',
+    chatPlaceholder: 'உங்கள் கேள்வியை எழுதுங்கள்…',
+    chatSend: 'அனுப்பு',
+    chatThinking: 'பதிலளிக்கிறது…',
+    chatRateLimited: 'உரையாடல் வரம்பை எட்டிவிட்டீர்கள். பின்னர் மீண்டும் முயற்சிக்கவும்.',
+    chatPrivacy: 'அடிக்கடி கேட்கப்படும் கேள்விகளில் இல்லாத கேள்விகள் Cloudflare Workers AI மூலம் செயலாக்கப்படும். தனிப்பட்ட விவரங்களைப் பகிர வேண்டாம்.',
+    chatUnavailable: 'மன்னிக்கவும், உதவியாளர் இப்போது கிடைக்கவில்லை. சலூன் விவரங்களுக்கு இணையதளத்தைப் பார்க்கவும்.',
+    chatQuickServices: 'என்ன சேவைகள் வழங்குகிறீர்கள்?',
+    chatQuickHours: 'திறந்திருக்கும் நேரம் என்ன?',
+    chatQuickExperience: 'எத்தனை ஆண்டுகள் அனுபவம் உள்ளது?',
     brandTagline: 'அழகான முடி நாட்களை ஒன்றாக உருவாக்குவோம்.',
     mapTitle: 'சுபுராஜ் சலூன் அமைவிட வரைபடம்',
     mapSalon: 'சுபுராஜ் சலூன் · பாளையங்கோட்டை',
@@ -145,7 +176,10 @@ const COPY = {
     reset: 'மீட்டமை',
     saveChanges: 'மாற்றங்களைச் சேமிக்கவும்',
     invalidLogin: 'பயனர் பெயர் அல்லது கடவுச்சொல் தவறு.',
+    loginRateLimited: 'பலமுறை உள்நுழைய முயற்சித்துள்ளீர்கள். சிறிது நேரம் கழித்து முயற்சிக்கவும்.',
+    loginUnavailable: 'இப்போது உள்நுழைய முடியவில்லை. தள அமைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.',
     pageViews: 'பக்கப் பார்வைகள்',
+    saveSuccess: 'மாற்றங்கள் வெற்றிகரமாகச் சேமிக்கப்பட்டன.',
     saveFailed: 'மாற்றங்களைச் சேமிக்க முடியவில்லை. மீண்டும் உள்நுழைந்து முயற்சிக்கவும்.',
   },
 } as const
@@ -189,6 +223,49 @@ function formatHoursRange(open: string | null, close: string | null, closedLabel
   }
 
   return `${formatScheduleTime(open)} – ${formatScheduleTime(close)}`
+}
+
+function getChatFaqAnswer(question: string, settings: ScheduleSettings, now: Date, language: Language) {
+  const normalizedQuestion = question.toLowerCase()
+
+  if (/hello|hi\b|hey\b|வணக்கம்|ஹலோ/.test(normalizedQuestion)) {
+    return language === 'ta'
+      ? 'வணக்கம்! எங்கள் சலூன் பற்றி என்ன தெரிந்துகொள்ள விரும்புகிறீர்கள்?'
+      : 'Hello! What would you like to know about our salon?'
+  }
+
+  if (/experience|years|long have|அனுபவம்|வருடம்/.test(normalizedQuestion)) {
+    return language === 'ta'
+      ? 'சுபுராஜ் சலூனுக்கு 20 ஆண்டுகளுக்கும் மேலான அனுபவம் உள்ளது.'
+      : 'Suburaaj Salon has over 20 years of experience.'
+  }
+
+  if (/where|location|address|direction|எங்கே|முகவரி|இடம்/.test(normalizedQuestion)) {
+    return language === 'ta'
+      ? 'நாங்கள் பாளையங்கோட்டை, திருநெல்வேலி, தமிழ்நாடு 627002-ல் உள்ளோம். வழியைப் பார்க்க இணையதளத்தின் கூகுள் மேப்ஸ் இணைப்பைப் பயன்படுத்துங்கள்.'
+      : 'We are in Palayamkottai, Tirunelveli, Tamil Nadu 627002. Use the Google Maps link on the website for directions.'
+  }
+
+  if (/service|what do you|offer|hair\s?cut|styling|colour|color|சேவை|வெட்ட|அலச|ஸ்டைல்|கலரிங்/.test(normalizedQuestion)) {
+    return language === 'ta'
+      ? 'முடி வெட்டுதல், முடி அலசுதல் மற்றும் ஸ்டைலிங், கலரிங் மற்றும் முடி பராமரிப்பு ஆகியவை எங்கள் இணையதளத்தில் குறிப்பிடப்பட்டுள்ள சேவைகள்.'
+      : 'The services listed on our website are haircuts, wash and styling, and hair colour and care.'
+  }
+
+  if (/hour|open|close|timing|today|நேரம்|திறந்திரு|மூடிய|திறப்ப|மூட/.test(normalizedQuestion)) {
+    const shopStatus = getShopStatus(now, settings.hours, settings.holidays, language)
+    const todayLabel = language === 'ta' ? 'இன்றைய நிலை' : 'Today'
+    const openLabel = shopStatus.isOpen
+      ? language === 'ta' ? 'திறந்துள்ளது' : 'Open'
+      : language === 'ta' ? 'மூடியுள்ளது' : 'Closed'
+    const dailyHours = settings.hours.map((entry, index) => (
+      `${DAY_NAMES[language][index]}: ${formatHoursRange(entry.open, entry.close, language === 'ta' ? 'மூடியுள்ளது' : 'Closed')}`
+    )).join('\n')
+
+    return `${todayLabel}: ${openLabel} · ${shopStatus.message}\n${dailyHours}`
+  }
+
+  return null
 }
 
 function findNextOpenDay(openingHours: OpeningHoursEntry[], startIndex: number) {
@@ -337,6 +414,11 @@ function App() {
   const [draftHours, setDraftHours] = useState<OpeningHoursEntry[]>(settings.hours)
   const [draftHoliday, setDraftHoliday] = useState('')
   const [draftHolidays, setDraftHolidays] = useState<string[]>(settings.holidays)
+  const [isChatOpen, setIsChatOpen] = useState(false)
+  const [chatQuestion, setChatQuestion] = useState('')
+  const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'assistant'; content: string }[]>([])
+  const [isChatLoading, setIsChatLoading] = useState(false)
+  const chatMessagesEndRef = useRef<HTMLDivElement | null>(null)
   const recordedVisit = useRef(false)
 
   const text = COPY[language]
@@ -381,7 +463,7 @@ function App() {
   useEffect(() => {
     document.title = isAdminRoute
       ? 'Admin | Suburaaj Salon'
-      : 'Suburaaj (Subu) Salon | Palayamkottai, Tirunelveli'
+      : 'Suburaaj Saloon | Subu Salon in Palayamkottai, Tirunelveli'
     document.querySelector<HTMLMetaElement>('meta[name="robots"]')?.setAttribute(
       'content',
       isAdminRoute ? 'noindex, nofollow' : 'index, follow, max-image-preview:large',
@@ -393,6 +475,10 @@ function App() {
     return () => window.clearInterval(timer)
   }, [])
 
+  useEffect(() => {
+    if (isChatOpen) chatMessagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+  }, [chatMessages, isChatLoading, isChatOpen])
+
   const currentTime = new Intl.DateTimeFormat('en-IN', {
     timeZone: SHOP_TIME_ZONE,
     hour: 'numeric',
@@ -401,20 +487,79 @@ function App() {
 
   const todayHours = settings.hours[status.todayIndex]
 
-  const handleAdminLogin = (event: FormEvent<HTMLFormElement>) => {
+  const handleAdminLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    fetch('/api/admin/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: adminUser, password: adminPassword }),
-    })
-      .then(async (response) => {
-        if (!response.ok) throw new Error(text.invalidLogin)
-        setIsAdminLoggedIn(true)
-        setAdminUser('')
-        setAdminPassword('')
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: adminUser, password: adminPassword }),
       })
-      .catch(() => window.alert(text.invalidLogin))
+
+      if (response.status === 401) {
+        window.alert(text.invalidLogin)
+        return
+      }
+
+      if (response.status === 429) {
+        window.alert(text.loginRateLimited)
+        return
+      }
+
+      if (!response.ok) {
+        window.alert(text.loginUnavailable)
+        return
+      }
+
+      setIsAdminLoggedIn(true)
+      setAdminUser('')
+      setAdminPassword('')
+    } catch {
+      window.alert(text.loginUnavailable)
+    }
+  }
+
+  const askChat = async (question: string) => {
+    const cleanQuestion = question.trim()
+    if (!cleanQuestion || isChatLoading) return
+
+    setChatMessages((messages) => [...messages, { role: 'user', content: cleanQuestion }])
+    setChatQuestion('')
+
+    const faqAnswer = getChatFaqAnswer(cleanQuestion, settings, now, language)
+    if (faqAnswer) {
+      setChatMessages((messages) => [...messages, { role: 'assistant', content: faqAnswer }])
+      return
+    }
+
+    setIsChatLoading(true)
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: cleanQuestion, language }),
+      })
+      if (response.status === 429) {
+        setChatMessages((messages) => [...messages, { role: 'assistant', content: text.chatRateLimited }])
+        return
+      }
+      const result: unknown = await response.json()
+      if (!response.ok || !result || typeof result !== 'object' || !('answer' in result)) {
+        throw new Error('Chat service request failed.')
+      }
+      const answer = result.answer
+      if (typeof answer !== 'string') throw new Error('Chat service returned an invalid answer.')
+      setChatMessages((messages) => [...messages, { role: 'assistant', content: answer }])
+    } catch {
+      setChatMessages((messages) => [...messages, { role: 'assistant', content: text.chatUnavailable }])
+    } finally {
+      setIsChatLoading(false)
+    }
+  }
+
+  const handleChatSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    void askChat(chatQuestion)
   }
 
   const handleHoursChange = (index: number, field: 'open' | 'close', value: string) => {
@@ -467,6 +612,7 @@ function App() {
       setSettings(nextSettings)
       setDraftHours(nextSettings.hours)
       setDraftHolidays(nextSettings.holidays)
+      window.alert(text.saveSuccess)
     } catch {
       window.alert(text.saveFailed)
     }
@@ -806,6 +952,74 @@ function App() {
           <span className="copyright">© {now.getFullYear()} Suburaaj Salon &amp; Studio. {text.rights}</span>
         </div>
       </footer>
+
+      <section className={`chat-widget${isChatOpen ? ' is-open' : ''}`} aria-label={text.chatTitle}>
+        {isChatOpen && (
+          <div className="chat-panel">
+            <header className="chat-panel-header">
+              <span className="chat-avatar"><ScissorsIcon /></span>
+              <div>
+                <strong>{text.chatTitle}</strong>
+                <span className="chat-status">{text.chatStatus}</span>
+              </div>
+              <button type="button" className="chat-close" aria-label={text.chatClose} onClick={() => setIsChatOpen(false)}>×</button>
+            </header>
+            <div className="chat-messages" aria-live="polite" aria-busy={isChatLoading}>
+              <div className="chat-bubble-row assistant">
+                <span className="chat-message-avatar"><ScissorsIcon /></span>
+                <p className="chat-bubble assistant">{text.chatWelcome}</p>
+              </div>
+              {chatMessages.map((message, index) => (
+                message.role === 'assistant'
+                  ? (
+                    <div className="chat-bubble-row assistant" key={`${index}-${message.role}`}>
+                      <span className="chat-message-avatar"><ScissorsIcon /></span>
+                      <p className="chat-bubble assistant">{message.content}</p>
+                    </div>
+                  )
+                  : <p className="chat-bubble user" key={`${index}-${message.role}`}>{message.content}</p>
+              ))}
+              {isChatLoading && (
+                <div className="chat-bubble-row assistant">
+                  <span className="chat-message-avatar"><ScissorsIcon /></span>
+                  <p className="chat-bubble assistant">{text.chatThinking}</p>
+                </div>
+              )}
+              {chatMessages.length === 0 && (
+                <div className="chat-quick-questions">
+                  <button type="button" onClick={() => void askChat(text.chatQuickServices)}>{text.chatQuickServices}</button>
+                  <button type="button" onClick={() => void askChat(text.chatQuickHours)}>{text.chatQuickHours}</button>
+                  <button type="button" onClick={() => void askChat(text.chatQuickExperience)}>{text.chatQuickExperience}</button>
+                </div>
+              )}
+              <div ref={chatMessagesEndRef} />
+            </div>
+            <form className="chat-form" onSubmit={handleChatSubmit}>
+              <input
+                value={chatQuestion}
+                maxLength={500}
+                onChange={(event) => setChatQuestion(event.target.value)}
+                placeholder={text.chatPlaceholder}
+                aria-label={text.chatPlaceholder}
+                disabled={isChatLoading}
+              />
+              <button type="submit" disabled={isChatLoading || !chatQuestion.trim()}>{text.chatSend}</button>
+            </form>
+            <p className="chat-privacy">{text.chatPrivacy}</p>
+          </div>
+        )}
+        <button
+          hidden={isChatOpen}
+          type="button"
+          className="chat-toggle"
+          aria-expanded={isChatOpen}
+          aria-label={text.chatOpen}
+          title={text.chatOpen}
+          onClick={() => setIsChatOpen(!isChatOpen)}
+        >
+          <span className="chat-toggle-icon" aria-hidden="true"><ScissorsIcon /></span>
+        </button>
+      </section>
 
     </main>
   )
