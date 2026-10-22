@@ -1,6 +1,6 @@
 import { getBookableSlots, getAppointmentSchedule, isAppointmentDate } from '../../_lib/appointments'
 import { hasAdminSession, isSameOrigin, jsonResponse, type Env } from '../../_lib/auth'
-import { sendAppointmentNotification } from '../../_lib/appointment-notifications'
+import { sendCustomerAppointmentUpdate, sendAppointmentNotification } from '../../_lib/appointment-notifications'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
@@ -168,10 +168,10 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
   }
 
   const current = await env.DB.prepare(
-    'SELECT id, customer_ciphertext FROM appointments WHERE id = ?',
+    'SELECT id, slot_start, customer_ciphertext FROM appointments WHERE id = ?',
   )
     .bind(id)
-    .first<{ id: string; customer_ciphertext: string }>()
+    .first<{ id: string; slot_start: string; customer_ciphertext: string }>()
   if (!current) return jsonResponse({ error: 'Appointment not found.' }, 404)
 
   const [schedule, booked] = await Promise.all([
@@ -186,9 +186,7 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
   }
 
   const updated = await env.DB.prepare(
-    `UPDATE OR IGNORE appointments
-     SET slot_start = ?, email_notified = 0, customer_email_notified = 0, salon_email_notified = 0
-     WHERE id = ?`,
+    'UPDATE OR IGNORE appointments SET slot_start = ? WHERE id = ?',
   ).bind(`${date}T${time}`, id).run()
   if (!updated.meta.changes) {
     return jsonResponse({ error: 'That appointment time is unavailable. Choose another time.' }, 409)
@@ -199,26 +197,11 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
     try {
       const details = await decryptCustomerDetails(current.customer_ciphertext, env.BOOKING_ENCRYPTION_KEY)
       if (details.email) {
-        const notification = await sendAppointmentNotification({
+        notificationSent = await sendCustomerAppointmentUpdate({
           slotStart: `${date}T${time}`,
           ...details,
           email: details.email,
-          customerEmailNotified: false,
-          salonEmailNotified: false,
-        }, env)
-        notificationSent = notification.customerSent && notification.salonSent
-        if (notification.customerSent || notification.salonSent) {
-          await env.DB.prepare(
-            `UPDATE appointments
-             SET customer_email_notified = ?, salon_email_notified = ?, email_notified = ?
-             WHERE id = ?`,
-          ).bind(
-            Number(notification.customerSent),
-            Number(notification.salonSent),
-            Number(notificationSent),
-            id,
-          ).run()
-        }
+        }, env, 'rescheduled', current.slot_start)
       }
     } catch (error) {
       console.error('Rescheduled appointment notification failed.', error)
@@ -237,8 +220,37 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
   const id = new URL(request.url).searchParams.get('id') ?? ''
   if (!id) return jsonResponse({ error: 'Appointment ID is required.' }, 400)
 
+  if (!env.BOOKING_ENCRYPTION_KEY) {
+    console.error('Appointment cannot be cancelled because the encryption key is not configured.')
+    return jsonResponse({ error: 'Appointment records are temporarily unavailable.' }, 503)
+  }
+
+  const appointment = await env.DB.prepare(
+    'SELECT slot_start, customer_ciphertext FROM appointments WHERE id = ?',
+  ).bind(id).first<{ slot_start: string; customer_ciphertext: string }>()
+  if (!appointment) return jsonResponse({ error: 'Appointment not found.' }, 404)
+
+  try {
+    const details = await decryptCustomerDetails(appointment.customer_ciphertext, env.BOOKING_ENCRYPTION_KEY)
+    if (!details.email) {
+      return jsonResponse({ error: 'This appointment has no customer email address, so it cannot be cancelled online.' }, 409)
+    }
+
+    const notificationSent = await sendCustomerAppointmentUpdate({
+      slotStart: appointment.slot_start,
+      ...details,
+      email: details.email,
+    }, env, 'cancelled')
+    if (!notificationSent) {
+      return jsonResponse({ error: 'The customer could not be notified, so the appointment was not cancelled.' }, 502)
+    }
+  } catch (error) {
+    console.error('Appointment cancellation notification failed.', error)
+    return jsonResponse({ error: 'The customer could not be notified, so the appointment was not cancelled.' }, 503)
+  }
+
   const deleted = await env.DB.prepare('DELETE FROM appointments WHERE id = ?').bind(id).run()
   if (!deleted.meta.changes) return jsonResponse({ error: 'Appointment not found.' }, 404)
 
-  return jsonResponse({ deleted: true })
+  return jsonResponse({ deleted: true, notificationSent: true })
 }

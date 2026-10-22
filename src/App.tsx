@@ -235,10 +235,11 @@ const COPY = {
     cancelAppointment: 'Cancel appointment',
     closeAppointmentEdit: 'Stop editing',
     saveAppointmentChange: 'Save new time',
-    appointmentChangeSaved: 'Appointment time updated.',
-    appointmentChangeNotificationPending: 'Appointment time updated, but confirmation emails could not be sent yet.',
-    appointmentCancelConfirm: 'Cancel this appointment? Its time slot will become available again.',
-    appointmentCancelSaved: 'Appointment cancelled.',
+    appointmentChangeSaved: 'Appointment time updated and an update email was sent to the customer.',
+    appointmentChangeNotificationPending: 'Appointment time updated, but the customer could not be emailed.',
+    appointmentCancelConfirm: 'The customer will be emailed before this appointment is cancelled. Continue?',
+    appointmentCancelSaved: 'Appointment cancelled and the customer was notified.',
+    appointmentCancelNotificationFailed: 'The customer could not be notified, so the appointment was not cancelled. Please try again.',
     appointmentActionFailed: 'Could not update this appointment. Refresh and try again.',
     appointmentTimeUnavailable: 'That time is no longer available. Choose another time.',
     appointmentActionLoading: 'Saving…',
@@ -387,14 +388,15 @@ const COPY = {
     appointmentEmailPending: 'உறுதிப்படுத்தல் மின்னஞ்சல் நிலுவையில் உள்ளது',
     retryAppointmentEmail: 'மின்னஞ்சலை மீண்டும் அனுப்பு',
     appointmentEmailRetried: 'உறுதிப்படுத்தல் மின்னஞ்சல்கள் அனுப்பப்பட்டன.',
-    appointmentChangeNotificationPending: 'முன்பதிவு நேரம் மாற்றப்பட்டது; உறுதிப்படுத்தல் மின்னஞ்சல்களை இப்போது அனுப்ப முடியவில்லை.',
+    appointmentChangeNotificationPending: 'முன்பதிவு நேரம் மாற்றப்பட்டது; வாடிக்கையாளருக்கு மின்னஞ்சல் அனுப்ப முடியவில்லை.',
     editAppointment: 'நேரத்தை மாற்று',
     cancelAppointment: 'முன்பதிவை ரத்துசெய்',
     closeAppointmentEdit: 'மாற்றத்தை நிறுத்து',
     saveAppointmentChange: 'புதிய நேரத்தைச் சேமி',
-    appointmentChangeSaved: 'முன்பதிவு நேரம் மாற்றப்பட்டது.',
-    appointmentCancelConfirm: 'இந்த முன்பதிவை ரத்துசெய்யவா? அந்த நேரம் மீண்டும் கிடைக்கும்.',
-    appointmentCancelSaved: 'முன்பதிவு ரத்துசெய்யப்பட்டது.',
+    appointmentChangeSaved: 'முன்பதிவு நேரம் மாற்றப்பட்டது; வாடிக்கையாளருக்கு தகவல் மின்னஞ்சல் அனுப்பப்பட்டது.',
+    appointmentCancelConfirm: 'இந்த முன்பதிவு ரத்து செய்யப்படுவதற்கு முன் வாடிக்கையாளருக்கு மின்னஞ்சல் அனுப்பப்படும். தொடரலாமா?',
+    appointmentCancelSaved: 'முன்பதிவு ரத்து செய்யப்பட்டது; வாடிக்கையாளருக்குத் தெரிவிக்கப்பட்டது.',
+    appointmentCancelNotificationFailed: 'வாடிக்கையாளருக்குத் தெரிவிக்க முடியாததால் முன்பதிவு ரத்து செய்யப்படவில்லை. மீண்டும் முயற்சிக்கவும்.',
     appointmentActionFailed: 'முன்பதிவை மாற்ற முடியவில்லை. புதுப்பித்து மீண்டும் முயற்சிக்கவும்.',
     appointmentTimeUnavailable: 'அந்த நேரம் இனி கிடைக்கவில்லை. வேறு நேரத்தைத் தேர்வு செய்யுங்கள்.',
     appointmentActionLoading: 'சேமிக்கிறது…',
@@ -1287,7 +1289,7 @@ function App() {
 
       const slotStart = `${adminEditDate}T${time}`
       setAppointments((items) => items
-        .map((item) => item.id === appointmentId ? { ...item, slotStart, emailNotified: notificationSent } : item)
+        .map((item) => item.id === appointmentId ? { ...item, slotStart } : item)
         .sort((left, right) => left.slotStart.localeCompare(right.slotStart)))
       setEditingAppointmentId(null)
       setAdminEditTime('')
@@ -1311,6 +1313,10 @@ function App() {
       const response = await fetch(`/api/admin/appointments?id=${encodeURIComponent(appointmentId)}`, {
         method: 'DELETE',
       })
+      if ([409, 502, 503].includes(response.status)) {
+        setAppointmentActionError(text.appointmentCancelNotificationFailed)
+        return
+      }
       if (!response.ok) throw new Error('Appointment could not be cancelled.')
       setAppointments((items) => items.filter(({ id }) => id !== appointmentId))
       if (editingAppointmentId === appointmentId) setEditingAppointmentId(null)
