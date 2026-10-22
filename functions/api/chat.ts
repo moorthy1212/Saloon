@@ -5,9 +5,21 @@ const RATE_WINDOW_MS = 10 * 60 * 1000
 const DAILY_AI_LIMIT = 50
 const MAX_QUESTION_LENGTH = 500
 const AI_MODEL = '@cf/meta/llama-3.2-3b-instruct'
+const DEEPSEEK_API_URL = 'https://api.deepseek.com/chat/completions'
+const DEEPSEEK_MODEL = 'deepseek-v4-pro'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
+}
+
+function getDeepSeekAnswer(result: unknown) {
+  if (!isRecord(result) || !Array.isArray(result.choices)) return null
+
+  const choice = result.choices[0]
+  if (!isRecord(choice) || !isRecord(choice.message) || typeof choice.message.content !== 'string') return null
+
+  const answer = choice.message.content.trim()
+  return answer || null
 }
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
@@ -75,38 +87,70 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return jsonResponse({ error: 'The free daily assistant limit has been reached. Please try again tomorrow.' }, 429)
   }
 
-  let result: unknown
+  const messages = [
+    {
+      role: 'system',
+      content: [
+        'You are SURA, the friendly website assistant for Suburaaj Salon & Studio in Palayamkottai, Tirunelveli, Tamil Nadu.',
+        'The salon has over 20 years of experience.',
+        'Current services and prices in Indian rupees are: Haircut & shaving is on offer for ₹140 (regular price ₹160); Hair dye / hair color ₹100; Shaving is on offer for ₹80 (regular price ₹100); Baby haircut ₹100. Facial and oil massage are not currently offered. Do not invent other services or prices; direct visitors to the website price list if unsure.',
+        'Answer in one or two complete, concise sentences in the language requested by the user.',
+        'Only answer questions relevant to the salon or general hair care. Politely redirect unrelated questions.',
+        'Never invent prices, phone numbers, booking availability, exact service details, or opening hours. Ask visitors to check the website or contact/visit the salon for details not listed.',
+        'Do not ask for passwords, payment details, or other sensitive personal information.',
+      ].join(' '),
+    },
+    {
+      role: 'user',
+      content: `${payload.language === 'ta' ? 'Reply in Tamil.' : 'Reply in English.'}\n\n${question}`,
+    },
+  ]
+
+  let answer: string | null = null
   try {
-    result = await env.AI.run(AI_MODEL, {
-      messages: [
-        {
-          role: 'system',
-          content: [
-            'You are SURA, the friendly website assistant for Suburaaj Salon & Studio in Palayamkottai, Tirunelveli, Tamil Nadu.',
-            'The salon has over 20 years of experience. Services listed on the site are haircuts, wash and styling, and hair colour and care.',
-            'Answer in one or two complete, concise sentences in the language requested by the user.',
-            'Only answer questions relevant to the salon or general hair care. Politely redirect unrelated questions.',
-            'Never invent prices, phone numbers, booking availability, exact service details, or opening hours. Ask visitors to check the website or contact/visit the salon for details not listed.',
-            'Do not ask for passwords, payment details, or other sensitive personal information.',
-          ].join(' '),
-        },
-        {
-          role: 'user',
-          content: `${payload.language === 'ta' ? 'Reply in Tamil.' : 'Reply in English.'}\n\n${question}`,
-        },
-      ],
+    const result: unknown = await env.AI.run(AI_MODEL, {
+      messages,
       max_tokens: 192,
       temperature: 0.3,
     })
+    if (isRecord(result) && typeof result.response === 'string' && result.response.trim()) {
+      answer = result.response.trim()
+    } else {
+      console.error('Cloudflare Workers AI returned an invalid response.')
+    }
   } catch (error) {
     console.error('Cloudflare Workers AI request failed.', error)
-    return jsonResponse({ error: 'Chat assistant is temporarily unavailable.' }, 502)
   }
 
-  if (!isRecord(result) || typeof result.response !== 'string' || !result.response.trim()) {
-    console.error('Cloudflare Workers AI returned an invalid response.')
-    return jsonResponse({ error: 'Chat assistant returned an invalid response.' }, 502)
+  if (!answer && env.DEEPSEEK_API_KEY) {
+    try {
+      const response = await fetch(DEEPSEEK_API_URL, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${env.DEEPSEEK_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: DEEPSEEK_MODEL,
+          messages,
+          max_tokens: 192,
+          temperature: 0.3,
+          stream: false,
+        }),
+      })
+
+      if (!response.ok) {
+        console.error(`DeepSeek API request failed with status ${response.status}.`)
+      } else {
+        answer = getDeepSeekAnswer(await response.json())
+        if (!answer) console.error('DeepSeek API returned an invalid response.')
+      }
+    } catch (error) {
+      console.error('DeepSeek API request failed.', error)
+    }
   }
 
-  return jsonResponse({ answer: result.response.trim() })
+  if (!answer) return jsonResponse({ error: 'Chat assistant is temporarily unavailable.' }, 502)
+
+  return jsonResponse({ answer })
 }

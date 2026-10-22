@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:pages": "npm run build && wrangler pages dev",
     "build": "tsc -b && tsc --noEmit -p tsconfig.functions.json && vite build",
     "lint": "oxlint",
     "preview": "vite preview",

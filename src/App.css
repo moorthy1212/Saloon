@@ -422,16 +422,43 @@ h2 em {
 }
 
 .services-section {
-  padding-top: 105px;
-  padding-bottom: 105px;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 66px max(48px, calc((100% - 1100px) / 2)) 72px;
+  overflow: hidden;
+  background: #fbf7ef;
+}
+
+.services-section::before,
+.services-section::after {
+  position: absolute;
+  top: 0;
+  width: 78px;
+  height: 142px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 150' fill='none' stroke='%23d9b99c' stroke-width='1.2' stroke-linecap='round'%3E%3Cpath d='M4 146C35 111 56 61 92 5M31 111C13 109 7 98 5 83c15 2 24 11 26 28m19-40C46 52 51 39 64 28c5 17 1 29-14 43m19-38C67 19 75 10 91 5c-1 15-9 24-22 28'/%3E%3C/svg%3E") center / contain no-repeat;
+  opacity: 0.55;
+  pointer-events: none;
+  content: '';
+}
+
+.services-section::before {
+  left: -12px;
+}
+
+.services-section::after {
+  right: -12px;
+  transform: scaleX(-1);
 }
 
 .section-heading {
-  margin-bottom: 34px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 30px;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 30px;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
 }
 
 .section-heading h2,
@@ -445,85 +472,156 @@ h2 em {
   letter-spacing: -0.04em;
 }
 
+.services-section .section-heading h2 {
+  margin-top: 10px;
+  color: #351b10;
+  font-size: clamp(40px, 5vw, 58px);
+}
+
 .section-heading > p {
-  max-width: 280px;
-  margin: 0 0 5px;
+  max-width: none;
+  margin: 0;
   color: var(--muted);
-  font-size: 14px;
-  line-height: 1.8;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  line-height: 1.6;
+}
+
+.services-section .eyebrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.services-section .eyebrow::before,
+.services-section .eyebrow::after {
+  width: 38px;
+  height: 1px;
+  background: #c77a5f;
+  content: '';
 }
 
 .service-grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  gap: 13px 14px;
 }
 
 .service-card {
   position: relative;
-  min-height: 210px;
-  padding: 25px 29px;
-  border-right: 1px solid var(--line);
-  transition: background 180ms ease;
+  min-height: 192px;
+  box-sizing: border-box;
+  padding: 16px 26px 18px;
+  border: 1px solid #e8d9c8;
+  border-radius: 9px;
+  background: rgb(255 255 255 / 22%);
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
 }
 
-.service-card:first-child {
-  border-left: 1px solid var(--line);
-}
-
-.service-card:hover,
-.service-card-featured {
-  background: var(--paper);
+.service-card:hover {
+  transform: translateY(-2px);
+  border-color: #d5ad92;
+  background: rgb(255 255 255 / 62%);
 }
 
 .service-number {
-  color: #9b9084;
-  font-size: 9px;
-  letter-spacing: 0.1em;
+  display: none;
 }
 
 .service-symbol {
-  position: absolute;
-  top: 20px;
-  right: 27px;
-  color: #b76e57;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 7px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #f3e4d7;
+  color: #70442f;
   font-family: var(--serif);
-  font-size: 25px;
+  font-size: 32px;
+}
+
+.service-symbol svg {
+  width: 54px;
+  height: 54px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
 }
 
 .service-card h3 {
-  margin: 35px 0 8px;
+  margin: 0 0 7px;
   font-family: var(--serif);
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 400;
 }
 
-.service-card p {
-  max-width: 240px;
-  margin-bottom: 0;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.8;
+.service-card h3::after {
+  width: 27px;
+  height: 1px;
+  margin-top: 9px;
+  display: block;
+  background: #c46648;
+  content: '';
 }
 
-.service-card > a {
+.service-card .service-price {
+  margin: 0;
+  color: var(--rust);
+  font-family: var(--serif);
+  font-size: 25px;
+  line-height: 1.2;
+}
+
+.service-card .service-price del {
+  margin-right: 5px;
+  color: var(--muted);
+  font-size: 17px;
+}
+
+.service-offer {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.service-offer small {
+  font-family: var(--sans);
+  font-size: 12px;
+}
+
+.service-card-link {
   position: absolute;
-  right: 26px;
-  bottom: 22px;
-  width: 30px;
-  height: 30px;
+  right: 21px;
+  bottom: 17px;
+  width: 23px;
+  height: 23px;
   display: grid;
   place-items: center;
-  border: 1px solid var(--line);
   border-radius: 50%;
-  color: var(--ink);
-  transition: color 160ms ease, background 160ms ease;
+  background: #bd6749;
+  color: #fff;
+  transition: background 160ms ease, transform 160ms ease;
 }
 
-.service-card > a:hover {
+.service-card-link svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+}
+
+.service-card-link:hover {
+  transform: translateX(2px);
   background: var(--ink);
-  color: white;
 }
 
 .hours-section {
@@ -828,6 +926,16 @@ html[lang='ta'] .hours-footnote {
     width: calc(100% - 80px);
   }
 
+  .services-section.section-wrap {
+    width: 100%;
+    padding-right: 40px;
+    padding-left: 40px;
+  }
+
+  .service-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .visit-strip {
     padding: 18px 22px;
     gap: 20px;
@@ -948,18 +1056,15 @@ html[lang='ta'] .hours-footnote {
   }
 
   .services-section {
-    padding-top: 76px;
-    padding-bottom: 76px;
+    padding: 64px 24px 68px;
   }
 
   .section-heading {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 13px;
-    margin-bottom: 24px;
+    gap: 10px;
+    margin-bottom: 25px;
   }
 
-  .section-heading h2 {
+  .services-section .section-heading h2 {
     font-size: 39px;
   }
 
@@ -967,21 +1072,9 @@ html[lang='ta'] .hours-footnote {
     grid-template-columns: 1fr;
   }
 
-  .service-card,
-  .service-card:first-child {
-    min-height: 175px;
-    padding: 22px 23px;
-    border-right: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-    border-left: 1px solid var(--line);
-  }
-
-  .service-card:last-child {
-    border-bottom: 0;
-  }
-
-  .service-card h3 {
-    margin-top: 24px;
+  .service-card {
+    min-height: 185px;
+    padding: 16px 22px 18px;
   }
 
   .hours-section {
@@ -1097,6 +1190,20 @@ html[lang='ta'] .hours-footnote {
   color: var(--ink);
   font-size: 12px;
   text-underline-offset: 4px;
+}
+
+button.admin-back-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+button.admin-back-link:disabled {
+  opacity: 0.55;
+  cursor: wait;
 }
 
 .admin-page-content {
@@ -1239,6 +1346,18 @@ html[lang='ta'] .hours-footnote {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.holiday-input-row input {
+  min-width: 0;
+  flex: 1;
+}
+
+.holiday-input-row button:disabled,
+.admin-actions button:disabled,
+.holiday-chip button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .holiday-list {
@@ -1527,6 +1646,30 @@ html[lang='ta'] .hours-footnote {
   border-bottom-right-radius: 5px;
 }
 
+.chat-bubble p {
+  margin: 0;
+}
+
+.chat-book-link {
+  width: fit-content;
+  display: inline-flex;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--rust);
+  color: #fff;
+  font-size: 11px;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.chat-book-link-always {
+  align-self: flex-start;
+  margin: 0 14px 9px;
+}
+
 .chat-quick-questions {
   padding: 0 0 0 31px;
   display: flex;
@@ -1542,6 +1685,72 @@ html[lang='ta'] .hours-footnote {
   color: var(--rust);
   font-size: 12px;
   cursor: pointer;
+}
+
+.chat-booking-controls {
+  width: min(84%, 290px);
+  margin-left: 31px;
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.chat-booking-controls p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.chat-booking-controls label {
+  display: grid;
+  gap: 6px;
+}
+
+.chat-booking-controls label span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.chat-booking-controls input {
+  min-width: 0;
+  min-height: 38px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fffdfa;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+}
+
+.chat-booking-controls button {
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid rgb(160 82 61 / 28%);
+  border-radius: 18px;
+  background: #fff;
+  color: var(--rust);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.chat-booking-controls button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.chat-booking-controls button.chat-booking-secondary {
+  border-color: var(--line);
+  color: var(--muted);
+}
+
+.chat-booking-controls .chat-booking-error {
+  color: #a33426;
 }
 
 .chat-form {
@@ -1628,5 +1837,250 @@ html[lang='ta'] .hours-footnote {
   .chat-panel,
   .chat-bubble {
     animation: none;
+  }
+}
+
+.appointment-page {
+  min-height: calc(100vh - 94px);
+  box-sizing: border-box;
+  padding: 38px 24px 72px;
+  background: var(--paper);
+}
+
+.appointment-back-link {
+  display: block;
+  width: min(620px, 100%);
+  margin: 0 auto 18px;
+  font-size: 12px;
+}
+
+.appointment-card {
+  width: min(620px, 100%);
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 36px;
+  background: #fffdfb;
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 40px rgb(56 44 34 / 7%);
+}
+
+.appointment-card h1 {
+  margin: 8px 0 10px;
+  font-family: var(--serif);
+  font-size: clamp(32px, 5vw, 46px);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+
+.appointment-intro,
+.appointment-privacy {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.appointment-intro {
+  margin: 0 0 25px;
+}
+
+.appointment-form {
+  display: grid;
+  gap: 16px;
+}
+
+.appointment-form label {
+  display: grid;
+  gap: 7px;
+}
+
+.appointment-form label > span {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.appointment-form input,
+.appointment-form select {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+
+.appointment-form input:focus,
+.appointment-form select:focus {
+  outline: 2px solid rgb(160 82 61 / 22%);
+  outline-offset: 2px;
+}
+
+.appointment-form select:disabled {
+  color: var(--muted);
+  cursor: wait;
+}
+
+.appointment-form > button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.appointment-privacy {
+  margin: 18px 0 0;
+  font-size: 11px;
+}
+
+.appointment-success,
+.appointment-error {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.appointment-success {
+  background: #edf5ec;
+  color: #2d6331;
+}
+
+.appointment-error {
+  background: #faece8;
+  color: #8b3422;
+}
+
+.appointment-list {
+  margin: 0;
+  padding-left: 25px;
+  display: grid;
+  gap: 10px;
+}
+
+.appointment-admin-card {
+  padding: 14px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.appointment-admin-actions {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.appointment-admin-actions .secondary-button {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 10px;
+}
+
+.appointment-admin-actions .appointment-cancel-button {
+  background: #faece8;
+  color: #8b3422;
+}
+
+.appointment-admin-edit {
+  margin-top: 12px;
+  padding-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  gap: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.appointment-admin-edit label {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.appointment-admin-edit label span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.appointment-admin-edit input,
+.appointment-admin-edit select {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  background: #fffdfa;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+}
+
+.appointment-admin-edit .primary-button {
+  grid-column: 1 / -1;
+}
+
+.appointment-admin-card > div:first-child {
+  display: grid;
+  gap: 6px;
+}
+
+.appointment-admin-card strong {
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.appointment-admin-card span,
+.appointment-admin-card a {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.appointment-admin-card a {
+  width: fit-content;
+  color: var(--rust);
+}
+
+.appointment-notifications {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.appointment-notifications span {
+  padding: 5px 8px;
+  background: #f4eee8;
+  font-size: 10px;
+}
+
+.button-outline {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+}
+
+@media (max-width: 680px) {
+  .appointment-page {
+    min-height: calc(100vh - 72px);
+    padding: 24px 16px 56px;
+  }
+
+  .appointment-card {
+    padding: 25px 19px;
+  }
+
+  .appointment-admin-card {
+    padding: 12px 10px;
+  }
+
+  .appointment-admin-edit {
+    grid-template-columns: 1fr;
+  }
+
+  .appointment-admin-edit .primary-button {
+    grid-column: auto;
   }
 }

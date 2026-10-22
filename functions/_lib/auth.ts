@@ -4,6 +4,11 @@ export type Env = {
   ADMIN_PASSWORD: string
   ADMIN_SESSION_SECRET: string
   AI: Ai
+  DEEPSEEK_API_KEY?: string
+  BOOKING_ENCRYPTION_KEY?: string
+  BREVO_API_KEY?: string
+  APPOINTMENT_EMAIL_FROM?: string
+  SALON_NOTIFICATION_EMAIL?: string
 }
 
 const COOKIE_NAME = 'suburaaj_admin'

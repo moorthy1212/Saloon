@@ -36,9 +36,15 @@ export function isValidSchedule(value: unknown): value is ScheduleSettings {
     && (entry.open === null || (typeof entry.open === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(entry.open)))
     && (entry.close === null || (typeof entry.close === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(entry.close)))
     && ((entry.open === null) === (entry.close === null))
+    && (entry.open === null || entry.close === null || entry.open < entry.close)
   ))
 
-  return validHours && settings.holidays.every((date) => (
-    typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)
-  ))
+  if (!validHours) return false
+  const validHolidays = settings.holidays.every((date) => {
+    if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false
+    const parsed = new Date(`${date}T12:00:00.000Z`)
+    return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === date
+  })
+
+  return validHolidays && new Set(settings.holidays).size === settings.holidays.length
 }
