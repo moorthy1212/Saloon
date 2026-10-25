@@ -25,33 +25,55 @@ function isAdminAppointment(value: unknown): value is AdminAppointment {
     && 'emailNotified' in value && typeof value.emailNotified === 'boolean'
 }
 
-function ResourceLinksSection() {
+function ResourceLinksSection({ language }: { language: Language }) {
+  const copy = language === 'ta'
+    ? {
+        eyebrow: 'மேலும் அறிய',
+        title: 'உதவிகரமான சலூன் வளங்கள்',
+        subtitle: 'அடுத்த வருகைக்கு எங்கள் நடைமுறை வழிகாட்டிகள், சேவை பதில்கள் மற்றும் முடி பராமரிப்பு ஆலோசனைகளைப் பாருங்கள்.',
+        cta: 'மேலும் படிக்க',
+        haircareTitle: 'முடி பராமரிப்பு ஆலோசனை',
+        haircareDescription: 'நேரான, அலைந்த, மடிந்த, கொக்கு-முடி மற்றும் வண்ணம் பூசப்பட்ட முடிகளுக்கு நிபுணர் வழிகாட்டுதல்.',
+        faqTitle: 'சலூன் அடிக்கடி கேட்கப்படும் கேள்விகள்',
+        faqDescription: 'சேவைகள், விலை, முன்பதிவு மற்றும் முன்பதிவு தொடர்பான பொதுவான கேள்விகளுக்கான பதில்கள்.',
+      }
+    : {
+        eyebrow: 'MORE TO EXPLORE',
+        title: 'Helpful salon resources',
+        subtitle: 'Explore our practical guides, service answers and haircare advice for your next visit.',
+        cta: 'Read more',
+        haircareTitle: 'Haircare advice',
+        haircareDescription: 'Expert guidance for straight, wavy, curly, coily and colour-treated hair.',
+        faqTitle: 'Salon FAQs',
+        faqDescription: 'Answers to popular questions about services, pricing, bookings and appointments.',
+      }
+
   const links = [
     {
-      title: 'Haircare advice',
-      description: 'Expert guidance for straight, wavy, curly, coily and colour-treated hair.',
+      title: copy.haircareTitle,
+      description: copy.haircareDescription,
       href: '/haircare-advice',
     },
     {
-      title: 'Salon FAQs',
-      description: 'Answers to popular questions about services, pricing, bookings and appointments.',
+      title: copy.faqTitle,
+      description: copy.faqDescription,
       href: '/faq',
     },
   ]
 
   return (
-    <section className="resource-links-section section-wrap" aria-label="Helpful salon resources">
+    <section className="resource-links-section section-wrap" aria-label={copy.title}>
       <div className="section-heading">
         <div>
-          <p className="eyebrow">MORE TO EXPLORE</p>
-          <h2>Helpful salon resources</h2>
+          <p className="eyebrow">{copy.eyebrow}</p>
+          <h2>{copy.title}</h2>
         </div>
-        <p>Explore our practical guides, service answers and haircare advice for your next visit.</p>
+        <p>{copy.subtitle}</p>
       </div>
       <div className="resource-links-grid">
         {links.map(({ title, description, href }) => (
           <a key={title} className="resource-link-card" href={href}>
-            <span className="resource-pill">Read more</span>
+            <span className="resource-pill">{copy.cta}</span>
             <h3>{title}</h3>
             <p>{description}</p>
             <span className="resource-link-arrow">→</span>
@@ -171,24 +193,32 @@ function App() {
     const pageTitle = isAdminRoute
       ? 'Admin | Suburaaj Salon'
       : isAppointmentRoute
-        ? 'Book an appointment | Suburaaj Salon'
+        ? language === 'ta' ? 'முன்பதிவு செய்யுங்கள் | சுபுராஜ் சலூன்' : 'Book an appointment | Suburaaj Salon'
         : isManageAppointmentRoute
-          ? 'Manage your appointment | Suburaaj Salon'
+          ? language === 'ta' ? 'உங்கள் முன்பதிவை நிர்வகிக்கவும் | சுபுராஜ் சலூன்' : 'Manage your appointment | Suburaaj Salon'
           : isHaircareRoute
-            ? 'Haircare advice | Suburaaj Salon'
+            ? language === 'ta' ? 'முடி பராமரிப்பு ஆலோசனை | சுபுராஜ் சலூன்' : 'Haircare advice | Suburaaj Salon'
             : isFaqRoute
-              ? 'Salon FAQs | Suburaaj Salon'
+              ? language === 'ta' ? 'அடிக்கடி கேட்கப்படும் கேள்விகள் | சுபுராஜ் சலூன்' : 'Salon FAQs | Suburaaj Salon'
               : 'Suburaaj Saloon | Subu Salon in Palayamkottai, Tirunelveli'
     const pageDescription = isAdminRoute
       ? 'Admin dashboard for the Suburaaj Salon booking and scheduling system.'
       : isAppointmentRoute
-        ? 'Book a salon appointment in Palayamkottai with Suburaaj Salon. Choose your service, date and time online.'
+        ? language === 'ta'
+          ? 'பாளையங்கோட்டையில் உள்ள சுபுராஜ் சலூனுக்கு முன்பதிவு செய்யுங்கள். சேவை, தேதி மற்றும் நேரத்தை ஆன்லைனில் தேர்வு செய்யுங்கள்.'
+          : 'Book a salon appointment in Palayamkottai with Suburaaj Salon. Choose your service, date and time online.'
         : isManageAppointmentRoute
-          ? 'Manage an existing Suburaaj Salon appointment, reschedule it or cancel it securely.'
+          ? language === 'ta'
+            ? 'உள்ள existing சுபுராஜ் சலூன் முன்பதிவை நிர்வகிக்கவும், மீண்டும் நேரத்தை மாற்றவும் அல்லது பாதுகாப்பாக ரத்து செய்யவும்.'
+            : 'Manage an existing Suburaaj Salon appointment, reschedule it or cancel it securely.'
           : isHaircareRoute
-            ? 'Haircare advice for different hair types, including tips for straight, wavy, curly, coily and damaged hair.'
+            ? language === 'ta'
+              ? 'நேரான, அலைந்த, மடிந்த, கொக்கு-முடி மற்றும் சேதமடைந்த முடிகளுக்கு முடி பராமரிப்பு ஆலோசனைகள்.'
+              : 'Haircare advice for different hair types, including tips for straight, wavy, curly, coily and damaged hair.'
             : isFaqRoute
-              ? 'Frequently asked questions about salon services, pricing, bookings, haircare and appointment support.'
+              ? language === 'ta'
+                ? 'சேவைகள், விலை, முன்பதிவு, முடி பராமரிப்பு மற்றும் முன்பதிவு ஆதரவைக் குறித்த அடிக்கடி கேட்கப்படும் கேள்விகள்.'
+                : 'Frequently asked questions about salon services, pricing, bookings, haircare and appointment support.'
               : 'Suburaaj Salon in Palayamkottai, Tirunelveli offers haircuts, styling, color services and local salon care.'
 
     document.title = pageTitle
@@ -197,7 +227,7 @@ function App() {
       'content',
       isAdminRoute || isAppointmentRoute || isManageAppointmentRoute || isHaircareRoute || isFaqRoute ? 'noindex, nofollow' : 'index, follow, max-image-preview:large',
     )
-  }, [isAdminRoute, isAppointmentRoute, isFaqRoute, isHaircareRoute, isManageAppointmentRoute])
+  }, [isAdminRoute, isAppointmentRoute, isFaqRoute, isHaircareRoute, isManageAppointmentRoute, language])
 
   useEffect(() => {
     if (!isAppointmentRoute && chatBookingStep !== 'time') return
@@ -891,15 +921,15 @@ function App() {
             <a href="/#services">{text.navServices}</a>
             <a href="/#hours">{text.navHours}</a>
             <a href="/#about">{text.navAbout}</a>
-            <a href="/haircare-advice">Haircare</a>
-            <a href="/faq">FAQ</a>
+            <a href="/haircare-advice">{text.haircareNav}</a>
+            <a href="/faq">{text.faqNav}</a>
           </nav>
           <a className="header-link appointment-header-link" href="/appointment">
             {text.bookAppointment} <span><ArrowIcon /></span>
           </a>
         </header>
 
-        <HaircareAdvicePage />
+        <HaircareAdvicePage language={language} />
 
         <SiteFooter text={text} pageViews={pageViews} year={now.getFullYear()} language={language} />
         <ChatWidget
@@ -954,15 +984,15 @@ function App() {
             <a href="/#services">{text.navServices}</a>
             <a href="/#hours">{text.navHours}</a>
             <a href="/#about">{text.navAbout}</a>
-            <a href="/haircare-advice">Haircare</a>
-            <a href="/faq">FAQ</a>
+            <a href="/haircare-advice">{text.haircareNav}</a>
+            <a href="/faq">{text.faqNav}</a>
           </nav>
           <a className="header-link appointment-header-link" href="/appointment">
             {text.bookAppointment} <span><ArrowIcon /></span>
           </a>
         </header>
 
-        <FaqPage />
+        <FaqPage language={language} />
 
         <SiteFooter text={text} pageViews={pageViews} year={now.getFullYear()} language={language} />
         <ChatWidget
@@ -1016,8 +1046,8 @@ function App() {
           <a href={isAppointmentRoute || isManageAppointmentRoute || isHaircareRoute || isFaqRoute ? '/#services' : '#services'}>{text.navServices}</a>
           <a href={isAppointmentRoute || isManageAppointmentRoute || isHaircareRoute || isFaqRoute ? '/#hours' : '#hours'}>{text.navHours}</a>
           <a href={isAppointmentRoute || isManageAppointmentRoute || isHaircareRoute || isFaqRoute ? '/#about' : '#about'}>{text.navAbout}</a>
-          <a href="/haircare-advice">Haircare</a>
-          <a href="/faq">FAQ</a>
+          <a href="/haircare-advice">{text.haircareNav}</a>
+          <a href="/faq">{text.faqNav}</a>
         </nav>
         <button
           type="button"
@@ -1122,7 +1152,7 @@ function App() {
 
       <ServiceSection text={text} language={language} />
 
-      <ResourceLinksSection />
+      <ResourceLinksSection language={language} />
 
       <OpeningHoursSection
         text={text}
