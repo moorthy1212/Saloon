@@ -25,6 +25,43 @@ function isAdminAppointment(value: unknown): value is AdminAppointment {
     && 'emailNotified' in value && typeof value.emailNotified === 'boolean'
 }
 
+function ResourceLinksSection() {
+  const links = [
+    {
+      title: 'Haircare advice',
+      description: 'Expert guidance for straight, wavy, curly, coily and colour-treated hair.',
+      href: '/haircare-advice',
+    },
+    {
+      title: 'Salon FAQs',
+      description: 'Answers to popular questions about services, pricing, bookings and appointments.',
+      href: '/faq',
+    },
+  ]
+
+  return (
+    <section className="resource-links-section section-wrap" aria-label="Helpful salon resources">
+      <div className="section-heading">
+        <div>
+          <p className="eyebrow">MORE TO EXPLORE</p>
+          <h2>Helpful salon resources</h2>
+        </div>
+        <p>Explore our practical guides, service answers and haircare advice for your next visit.</p>
+      </div>
+      <div className="resource-links-grid">
+        {links.map(({ title, description, href }) => (
+          <a key={title} className="resource-link-card" href={href}>
+            <span className="resource-pill">Read more</span>
+            <h3>{title}</h3>
+            <p>{description}</p>
+            <span className="resource-link-arrow">→</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 function App() {
   const [now, setNow] = useState(() => new Date())
   const [language, setLanguage] = useState<Language>(() => (
@@ -131,7 +168,7 @@ function App() {
   }, [language])
 
   useEffect(() => {
-    document.title = isAdminRoute
+    const pageTitle = isAdminRoute
       ? 'Admin | Suburaaj Salon'
       : isAppointmentRoute
         ? 'Book an appointment | Suburaaj Salon'
@@ -142,6 +179,20 @@ function App() {
             : isFaqRoute
               ? 'Salon FAQs | Suburaaj Salon'
               : 'Suburaaj Saloon | Subu Salon in Palayamkottai, Tirunelveli'
+    const pageDescription = isAdminRoute
+      ? 'Admin dashboard for the Suburaaj Salon booking and scheduling system.'
+      : isAppointmentRoute
+        ? 'Book a salon appointment in Palayamkottai with Suburaaj Salon. Choose your service, date and time online.'
+        : isManageAppointmentRoute
+          ? 'Manage an existing Suburaaj Salon appointment, reschedule it or cancel it securely.'
+          : isHaircareRoute
+            ? 'Haircare advice for different hair types, including tips for straight, wavy, curly, coily and damaged hair.'
+            : isFaqRoute
+              ? 'Frequently asked questions about salon services, pricing, bookings, haircare and appointment support.'
+              : 'Suburaaj Salon in Palayamkottai, Tirunelveli offers haircuts, styling, color services and local salon care.'
+
+    document.title = pageTitle
+    document.querySelector<HTMLMetaElement>('meta[name="description"]')?.setAttribute('content', pageDescription)
     document.querySelector<HTMLMetaElement>('meta[name="robots"]')?.setAttribute(
       'content',
       isAdminRoute || isAppointmentRoute || isManageAppointmentRoute || isHaircareRoute || isFaqRoute ? 'noindex, nofollow' : 'index, follow, max-image-preview:large',
@@ -1070,6 +1121,8 @@ function App() {
       />
 
       <ServiceSection text={text} language={language} />
+
+      <ResourceLinksSection />
 
       <OpeningHoursSection
         text={text}

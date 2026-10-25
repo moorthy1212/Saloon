@@ -118,24 +118,40 @@ export function FaqPage() {
     },
   ]
 
-  return (
-    <section className="info-page faq-page">
-      <div className="info-page-header">
-        <p className="eyebrow"><span /> FAQ</p>
-        <h1>Frequently asked questions about salon services</h1>
-        <p>
-          Everything you may want to know before booking your next visit at the salon.
-        </p>
-      </div>
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(({ question, answer }) => ({
+      '@type': 'Question',
+      name: question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: answer,
+      },
+    })),
+  }
 
-      <div className="faq-list">
-        {faqs.map(({ question, answer }) => (
-          <article key={question} className="faq-item">
-            <h2>{question}</h2>
-            <p>{answer}</p>
-          </article>
-        ))}
-      </div>
-    </section>
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+      <section className="info-page faq-page">
+        <div className="info-page-header">
+          <p className="eyebrow"><span /> FAQ</p>
+          <h1>Frequently asked questions about salon services</h1>
+          <p>
+            Everything you may want to know before booking your next visit at the salon.
+          </p>
+        </div>
+
+        <div className="faq-list">
+          {faqs.map(({ question, answer }) => (
+            <article key={question} className="faq-item">
+              <h2>{question}</h2>
+              <p>{answer}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+    </>
   )
 }

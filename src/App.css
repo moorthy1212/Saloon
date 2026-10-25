@@ -702,6 +702,74 @@ h2 em {
   background: var(--ink);
 }
 
+.resource-links-section {
+  width: min(1280px, calc(100% - 96px));
+  margin: 56px auto 0;
+}
+
+.resource-links-section .section-heading {
+  margin-bottom: 26px;
+}
+
+.resource-links-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.resource-link-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 220px;
+  padding: 26px 24px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  color: var(--ink);
+  text-decoration: none;
+  box-shadow: 0 12px 32px rgba(33, 26, 21, 0.04);
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.resource-link-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--rust);
+  box-shadow: 0 18px 38px rgba(33, 26, 21, 0.08);
+}
+
+.resource-pill {
+  width: fit-content;
+  padding: 6px 10px;
+  border: 1px solid rgba(107, 62, 41, 0.22);
+  border-radius: 999px;
+  color: var(--rust);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.resource-link-card h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(28px, 2.2vw, 36px);
+  letter-spacing: -0.04em;
+}
+
+.resource-link-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.resource-link-arrow {
+  margin-top: auto;
+  color: var(--rust);
+  font-size: 30px;
+  line-height: 1;
+}
+
 .hours-section {
   padding: 86px max(80px, calc((100% - 1100px) / 2));
   display: grid;
@@ -1014,6 +1082,10 @@ html[lang='ta'] .hours-footnote {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .resource-links-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .visit-strip {
     padding: 18px 22px;
     gap: 20px;
@@ -1155,6 +1227,14 @@ html[lang='ta'] .hours-footnote {
   }
 
   .service-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .resource-links-section {
+    width: calc(100% - 48px);
+  }
+
+  .resource-links-grid {
     grid-template-columns: 1fr;
   }
 
