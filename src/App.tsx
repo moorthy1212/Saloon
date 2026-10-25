@@ -924,6 +924,14 @@ function App() {
             <a href="/haircare-advice">{text.haircareNav}</a>
             <a href="/faq">{text.faqNav}</a>
           </nav>
+          <button
+            type="button"
+            className="language-toggle"
+            aria-label={text.languageLabel}
+            onClick={() => setLanguage(language === 'en' ? 'ta' : 'en')}
+          >
+            {text.language}
+          </button>
           <a className="header-link appointment-header-link" href="/appointment">
             {text.bookAppointment} <span><ArrowIcon /></span>
           </a>
@@ -987,6 +995,14 @@ function App() {
             <a href="/haircare-advice">{text.haircareNav}</a>
             <a href="/faq">{text.faqNav}</a>
           </nav>
+          <button
+            type="button"
+            className="language-toggle"
+            aria-label={text.languageLabel}
+            onClick={() => setLanguage(language === 'en' ? 'ta' : 'en')}
+          >
+            {text.language}
+          </button>
           <a className="header-link appointment-header-link" href="/appointment">
             {text.bookAppointment} <span><ArrowIcon /></span>
           </a>
