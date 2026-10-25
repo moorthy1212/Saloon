@@ -8,6 +8,7 @@ export type AppointmentNotification = {
   service: string
   customerEmailNotified: boolean
   salonEmailNotified: boolean
+  customerManagementUrl?: string
 }
 
 type CustomerAppointmentUpdate = Pick<AppointmentNotification, 'slotStart' | 'name' | 'email' | 'service'>
@@ -72,6 +73,7 @@ function customerEmailHtml(
   slotStart: string,
   kind: 'confirmed' | 'rescheduled' | 'cancelled',
   previousSlotStart?: string,
+  customerManagementUrl?: string,
 ) {
   const content = {
     confirmed: {
@@ -97,6 +99,9 @@ function customerEmailHtml(
     ? `<tr><td style="padding:8px 0;color:#64748b;font-size:14px;">Previous time</td><td style="padding:8px 0;color:#64748b;font-size:14px;text-align:right;text-decoration:line-through;">${escapeHtml(formatAppointmentTime(previousSlotStart))}</td></tr>
        <tr><td style="padding:8px 0;color:#334155;font-size:14px;font-weight:700;">New time</td><td style="padding:8px 0;color:#334155;font-size:14px;font-weight:700;text-align:right;">${safeSlotStart}</td></tr>`
     : `<tr><td style="padding:8px 0;color:#64748b;font-size:14px;">Date &amp; time</td><td style="padding:8px 0;color:#334155;font-size:14px;font-weight:700;text-align:right;">${safeSlotStart}</td></tr>`
+  const managementLink = kind === 'confirmed' && customerManagementUrl
+    ? `<p style="margin:20px 0 0;"><a href="${escapeHtml(customerManagementUrl)}" style="display:inline-block;padding:12px 18px;background:#173f35;color:#ffffff;text-decoration:none;border-radius:6px;">Manage your appointment</a></p>`
+    : ''
 
   return `<div style="margin:0;background:#f4f6f3;padding:32px 12px;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
   <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;">
@@ -121,6 +126,7 @@ function customerEmailHtml(
     </td></tr>
     <tr><td style="padding:0 32px 28px;color:#52615b;font-size:14px;line-height:1.7;">
       <p style="margin:0;">${content.closing}</p>
+      ${managementLink}
       <p style="margin:18px 0 0;color:#173f35;font-weight:700;">Warm regards,<br>Suburaaj Salon &amp; Studio</p>
     </td></tr>
     <tr><td style="padding:15px 24px;background:#f8faf8;text-align:center;color:#87928b;font-size:12px;">Palayamkottai, Tirunelveli</td></tr>
@@ -153,6 +159,8 @@ export async function sendAppointmentNotification(
     appointment.service,
     appointment.slotStart,
     'confirmed',
+    undefined,
+    appointment.customerManagementUrl,
   )
   const safeTime = escapeHtml(formatAppointmentTime(appointment.slotStart))
   const salonHtml = [

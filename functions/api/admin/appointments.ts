@@ -1,46 +1,11 @@
 import { getBookableSlots, getAppointmentSchedule, isAppointmentDate } from '../../_lib/appointments'
+import { decryptAppointmentCustomerDetails } from '../../_lib/appointment-customer'
 import { hasAdminSession, isSameOrigin, jsonResponse, type Env } from '../../_lib/auth'
+import { decryptAppointmentManagementToken } from '../../_lib/appointment-management'
 import { sendCustomerAppointmentUpdate, sendAppointmentNotification } from '../../_lib/appointment-notifications'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
-}
-
-function decodeBase64(value: string) {
-  return Uint8Array.from(atob(value), (character) => character.charCodeAt(0))
-}
-
-async function decryptCustomerDetails(ciphertext: string, secret: string) {
-  const keyBytes = decodeBase64(secret)
-  if (keyBytes.byteLength !== 32) throw new Error('Booking encryption key must decode to 32 bytes.')
-
-  const combined = decodeBase64(ciphertext)
-  const iv = combined.slice(0, 12)
-  const data = combined.slice(12)
-  const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['decrypt'])
-  const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data)
-  const details: unknown = JSON.parse(new TextDecoder().decode(plaintext))
-  const email = typeof details === 'object' && details !== null && 'email' in details
-    ? details.email
-    : undefined
-  if (
-    typeof details !== 'object'
-    || details === null
-    || !('name' in details)
-    || typeof details.name !== 'string'
-    || !('phone' in details)
-    || typeof details.phone !== 'string'
-    || (email !== undefined && typeof email !== 'string')
-    || !('service' in details)
-    || typeof details.service !== 'string'
-  ) throw new Error('Stored appointment details are invalid.')
-
-  return {
-    name: details.name,
-    phone: details.phone,
-    ...(typeof email === 'string' ? { email } : {}),
-    service: details.service,
-  }
 }
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
@@ -72,7 +37,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       slotStart: row.slot_start,
       createdAt: row.created_at,
       emailNotified: row.customer_email_notified === 1 && row.salon_email_notified === 1,
-      ...await decryptCustomerDetails(row.customer_ciphertext, encryptionKey),
+      ...await decryptAppointmentCustomerDetails(row.customer_ciphertext, encryptionKey),
     })))
     return jsonResponse({ appointments })
   } catch (error) {
@@ -94,12 +59,14 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   if (!id) return jsonResponse({ error: 'Appointment ID is required.' }, 400)
 
   const row = await env.DB.prepare(
-    `SELECT id, slot_start, customer_ciphertext, customer_email_notified, salon_email_notified
+    `SELECT id, slot_start, customer_ciphertext, management_token_ciphertext,
+       customer_email_notified, salon_email_notified
      FROM appointments WHERE id = ?`,
   ).bind(id).first<{
     id: string
     slot_start: string
     customer_ciphertext: string
+    management_token_ciphertext: string | null
     customer_email_notified: number
     salon_email_notified: number
   }>()
@@ -109,15 +76,25 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   }
 
   try {
-    const details = await decryptCustomerDetails(row.customer_ciphertext, env.BOOKING_ENCRYPTION_KEY)
+    const details = await decryptAppointmentCustomerDetails(row.customer_ciphertext, env.BOOKING_ENCRYPTION_KEY)
     if (!details.email) return jsonResponse({ error: 'This appointment has no customer email address.' }, 409)
 
+    const customerManagementUrl = row.management_token_ciphertext
+      ? new URL('/manage-appointment', request.url)
+      : undefined
+    if (customerManagementUrl && row.management_token_ciphertext) {
+      customerManagementUrl.hash = await decryptAppointmentManagementToken(
+        row.management_token_ciphertext,
+        env.BOOKING_ENCRYPTION_KEY,
+      )
+    }
     const notification = await sendAppointmentNotification({
       slotStart: row.slot_start,
       ...details,
       email: details.email,
       customerEmailNotified: row.customer_email_notified === 1,
       salonEmailNotified: row.salon_email_notified === 1,
+      ...(customerManagementUrl ? { customerManagementUrl: customerManagementUrl.toString() } : {}),
     }, env)
     const notificationSent = notification.customerSent && notification.salonSent
     if (notification.customerSent || notification.salonSent) {
@@ -195,7 +172,7 @@ export const onRequestPatch: PagesFunction<Env> = async ({ request, env }) => {
   let notificationSent = false
   if (env.BOOKING_ENCRYPTION_KEY) {
     try {
-      const details = await decryptCustomerDetails(current.customer_ciphertext, env.BOOKING_ENCRYPTION_KEY)
+      const details = await decryptAppointmentCustomerDetails(current.customer_ciphertext, env.BOOKING_ENCRYPTION_KEY)
       if (details.email) {
         notificationSent = await sendCustomerAppointmentUpdate({
           slotStart: `${date}T${time}`,
@@ -231,7 +208,7 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
   if (!appointment) return jsonResponse({ error: 'Appointment not found.' }, 404)
 
   try {
-    const details = await decryptCustomerDetails(appointment.customer_ciphertext, env.BOOKING_ENCRYPTION_KEY)
+    const details = await decryptAppointmentCustomerDetails(appointment.customer_ciphertext, env.BOOKING_ENCRYPTION_KEY)
     if (!details.email) {
       return jsonResponse({ error: 'This appointment has no customer email address, so it cannot be cancelled online.' }, 409)
     }

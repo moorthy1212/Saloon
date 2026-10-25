@@ -1,5 +1,9 @@
 import { getBookableSlots, getAppointmentSchedule, isAppointmentDate } from '../_lib/appointments'
 import { getLoginAttemptKey, isSameOrigin, jsonResponse, type Env } from '../_lib/auth'
+import {
+  createAppointmentManagementToken,
+  encryptAppointmentManagementToken,
+} from '../_lib/appointment-management'
 import { sendAppointmentNotification } from '../_lib/appointment-notifications'
 
 const RATE_LIMIT = 3
@@ -150,10 +154,21 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   }
 
   const bookingId = crypto.randomUUID()
+  const { token, tokenHash } = await createAppointmentManagementToken()
+  let managementTokenCiphertext: string
+  try {
+    managementTokenCiphertext = await encryptAppointmentManagementToken(token, env.BOOKING_ENCRYPTION_KEY)
+  } catch (error) {
+    console.error('Appointment management link could not be encrypted.', error)
+    return jsonResponse({ error: 'Online booking is temporarily unavailable.' }, 503)
+  }
+  const managementUrl = new URL('/manage-appointment', request.url)
+  managementUrl.hash = token
   const inserted = await env.DB.prepare(
-    `INSERT OR IGNORE INTO appointments (id, slot_start, customer_ciphertext, created_at)
-     VALUES (?, ?, ?, ?)`,
-  ).bind(bookingId, slotStart, customerCiphertext, now).run()
+    `INSERT OR IGNORE INTO appointments (
+       id, slot_start, customer_ciphertext, created_at, management_token_hash, management_token_ciphertext
+     ) VALUES (?, ?, ?, ?, ?, ?)`,
+  ).bind(bookingId, slotStart, customerCiphertext, now, tokenHash, managementTokenCiphertext).run()
   if (!inserted.meta.changes) {
     return jsonResponse({ error: 'That appointment time is no longer available. Please choose another time.' }, 409)
   }
@@ -163,6 +178,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     ...details,
     customerEmailNotified: false,
     salonEmailNotified: false,
+    customerManagementUrl: managementUrl.toString(),
   }, env)
   if (notification.customerSent || notification.salonSent) {
     try {

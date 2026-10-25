@@ -3,6 +3,8 @@ import { DEFAULT_SETTINGS, isValidSchedule, type OpeningHoursEntry, type Schedul
 import { AdminPage } from './components/AdminPage'
 import { AppointmentPage } from './components/AppointmentPage'
 import { ChatWidget } from './components/ChatWidget'
+import { FaqPage, HaircareAdvicePage } from './components/InfoPages'
+import { ManageAppointmentPage } from './components/ManageAppointmentPage'
 import { AboutSection, OpeningHoursSection, ServiceSection, SiteFooter, VisitStrip } from './components/SiteSections'
 import { ArrowIcon, ScissorsIcon } from './components/SalonIcons'
 import { COPY } from './content/copy'
@@ -76,6 +78,9 @@ function App() {
   const text = COPY[language]
   const isAdminRoute = window.location.pathname.replace(/\/+$/, '') === '/admin'
   const isAppointmentRoute = window.location.pathname.replace(/\/+$/, '') === '/appointment'
+  const isManageAppointmentRoute = window.location.pathname.replace(/\/+$/, '') === '/manage-appointment'
+  const isHaircareRoute = window.location.pathname.replace(/\/+$/, '') === '/haircare-advice'
+  const isFaqRoute = window.location.pathname.replace(/\/+$/, '') === '/faq'
   const status = getShopStatus(now, settings.hours, settings.holidays, language)
 
   useEffect(() => {
@@ -130,12 +135,18 @@ function App() {
       ? 'Admin | Suburaaj Salon'
       : isAppointmentRoute
         ? 'Book an appointment | Suburaaj Salon'
-        : 'Suburaaj Saloon | Subu Salon in Palayamkottai, Tirunelveli'
+        : isManageAppointmentRoute
+          ? 'Manage your appointment | Suburaaj Salon'
+          : isHaircareRoute
+            ? 'Haircare advice | Suburaaj Salon'
+            : isFaqRoute
+              ? 'Salon FAQs | Suburaaj Salon'
+              : 'Suburaaj Saloon | Subu Salon in Palayamkottai, Tirunelveli'
     document.querySelector<HTMLMetaElement>('meta[name="robots"]')?.setAttribute(
       'content',
-      isAdminRoute || isAppointmentRoute ? 'noindex, nofollow' : 'index, follow, max-image-preview:large',
+      isAdminRoute || isAppointmentRoute || isManageAppointmentRoute || isHaircareRoute || isFaqRoute ? 'noindex, nofollow' : 'index, follow, max-image-preview:large',
     )
-  }, [isAdminRoute, isAppointmentRoute])
+  }, [isAdminRoute, isAppointmentRoute, isFaqRoute, isHaircareRoute, isManageAppointmentRoute])
 
   useEffect(() => {
     if (!isAppointmentRoute && chatBookingStep !== 'time') return
@@ -814,10 +825,136 @@ function App() {
     )
   }
 
+  if (isHaircareRoute) {
+    return (
+      <main>
+        <header className="site-header">
+          <a className="brand" href="/" aria-label={text.home}>
+            <span className="brand-mark"><ScissorsIcon /></span>
+            <span className="brand-name">
+              <strong>SUBURAAJ</strong>
+              <span>SALON &amp; STUDIO</span>
+            </span>
+          </a>
+          <nav className="main-nav" aria-label="Main navigation">
+            <a href="/#services">{text.navServices}</a>
+            <a href="/#hours">{text.navHours}</a>
+            <a href="/#about">{text.navAbout}</a>
+            <a href="/haircare-advice">Haircare</a>
+            <a href="/faq">FAQ</a>
+          </nav>
+          <a className="header-link appointment-header-link" href="/appointment">
+            {text.bookAppointment} <span><ArrowIcon /></span>
+          </a>
+        </header>
+
+        <HaircareAdvicePage />
+
+        <SiteFooter text={text} pageViews={pageViews} year={now.getFullYear()} language={language} />
+        <ChatWidget
+          text={text}
+          language={language}
+          isOpen={isChatOpen}
+          setIsOpen={setIsChatOpen}
+          chatQuestion={chatQuestion}
+          setChatQuestion={setChatQuestion}
+          chatMessages={chatMessages}
+          isChatLoading={isChatLoading}
+          chatBookingStep={chatBookingStep}
+          setChatBookingStep={setChatBookingStep}
+          appointmentMinDate={appointmentMinDate}
+          appointmentMaxDate={appointmentMaxDate}
+          appointmentDate={appointmentDate}
+          setAppointmentDate={setAppointmentDate}
+          isAppointmentLoading={isAppointmentLoading}
+          appointmentError={appointmentError}
+          appointmentSlots={appointmentSlots}
+          appointmentService={appointmentService}
+          appointmentTime={appointmentTime}
+          isAppointmentSubmitting={isAppointmentSubmitting}
+          chooseChatBookingService={chooseChatBookingService}
+          showChatBookingTimes={showChatBookingTimes}
+          chooseChatBookingTime={chooseChatBookingTime}
+          formatServicePrice={formatServicePrice}
+          getServiceLabel={getServiceLabel}
+          formatScheduleTime={formatScheduleTime}
+          formatAppointmentDateTime={formatAppointmentDateTime}
+          reserveAppointment={reserveAppointment}
+          cancelChatBooking={cancelChatBooking}
+          askChat={askChat}
+          handleChatSubmit={handleChatSubmit}
+        />
+      </main>
+    )
+  }
+
+  if (isFaqRoute) {
+    return (
+      <main>
+        <header className="site-header">
+          <a className="brand" href="/" aria-label={text.home}>
+            <span className="brand-mark"><ScissorsIcon /></span>
+            <span className="brand-name">
+              <strong>SUBURAAJ</strong>
+              <span>SALON &amp; STUDIO</span>
+            </span>
+          </a>
+          <nav className="main-nav" aria-label="Main navigation">
+            <a href="/#services">{text.navServices}</a>
+            <a href="/#hours">{text.navHours}</a>
+            <a href="/#about">{text.navAbout}</a>
+            <a href="/haircare-advice">Haircare</a>
+            <a href="/faq">FAQ</a>
+          </nav>
+          <a className="header-link appointment-header-link" href="/appointment">
+            {text.bookAppointment} <span><ArrowIcon /></span>
+          </a>
+        </header>
+
+        <FaqPage />
+
+        <SiteFooter text={text} pageViews={pageViews} year={now.getFullYear()} language={language} />
+        <ChatWidget
+          text={text}
+          language={language}
+          isOpen={isChatOpen}
+          setIsOpen={setIsChatOpen}
+          chatQuestion={chatQuestion}
+          setChatQuestion={setChatQuestion}
+          chatMessages={chatMessages}
+          isChatLoading={isChatLoading}
+          chatBookingStep={chatBookingStep}
+          setChatBookingStep={setChatBookingStep}
+          appointmentMinDate={appointmentMinDate}
+          appointmentMaxDate={appointmentMaxDate}
+          appointmentDate={appointmentDate}
+          setAppointmentDate={setAppointmentDate}
+          isAppointmentLoading={isAppointmentLoading}
+          appointmentError={appointmentError}
+          appointmentSlots={appointmentSlots}
+          appointmentService={appointmentService}
+          appointmentTime={appointmentTime}
+          isAppointmentSubmitting={isAppointmentSubmitting}
+          chooseChatBookingService={chooseChatBookingService}
+          showChatBookingTimes={showChatBookingTimes}
+          chooseChatBookingTime={chooseChatBookingTime}
+          formatServicePrice={formatServicePrice}
+          getServiceLabel={getServiceLabel}
+          formatScheduleTime={formatScheduleTime}
+          formatAppointmentDateTime={formatAppointmentDateTime}
+          reserveAppointment={reserveAppointment}
+          cancelChatBooking={cancelChatBooking}
+          askChat={askChat}
+          handleChatSubmit={handleChatSubmit}
+        />
+      </main>
+    )
+  }
+
   return (
     <main>
       <header className="site-header">
-        <a className="brand" href={isAppointmentRoute ? '/#home' : '#home'} aria-label={text.home}>
+        <a className="brand" href={isAppointmentRoute || isManageAppointmentRoute || isHaircareRoute || isFaqRoute ? '/#home' : '#home'} aria-label={text.home}>
           <span className="brand-mark"><ScissorsIcon /></span>
           <span className="brand-name">
             <strong>SUBURAAJ</strong>
@@ -825,9 +962,11 @@ function App() {
           </span>
         </a>
         <nav className="main-nav" aria-label="Main navigation">
-          <a href={isAppointmentRoute ? '/#services' : '#services'}>{text.navServices}</a>
-          <a href={isAppointmentRoute ? '/#hours' : '#hours'}>{text.navHours}</a>
-          <a href={isAppointmentRoute ? '/#about' : '#about'}>{text.navAbout}</a>
+          <a href={isAppointmentRoute || isManageAppointmentRoute || isHaircareRoute || isFaqRoute ? '/#services' : '#services'}>{text.navServices}</a>
+          <a href={isAppointmentRoute || isManageAppointmentRoute || isHaircareRoute || isFaqRoute ? '/#hours' : '#hours'}>{text.navHours}</a>
+          <a href={isAppointmentRoute || isManageAppointmentRoute || isHaircareRoute || isFaqRoute ? '/#about' : '#about'}>{text.navAbout}</a>
+          <a href="/haircare-advice">Haircare</a>
+          <a href="/faq">FAQ</a>
         </nav>
         <button
           type="button"
@@ -842,7 +981,14 @@ function App() {
         </a>
       </header>
 
-      {isAppointmentRoute ? (
+      {isManageAppointmentRoute ? (
+        <ManageAppointmentPage
+          text={text}
+          language={language}
+          appointmentMinDate={appointmentMinDate}
+          appointmentMaxDate={appointmentMaxDate}
+        />
+      ) : isAppointmentRoute ? (
         <AppointmentPage
           text={text}
           language={language}
