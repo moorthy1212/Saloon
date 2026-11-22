@@ -51,14 +51,13 @@ function App() {
   const [appointmentTime, setAppointmentTime] = useState('')
   const [appointmentSlots, setAppointmentSlots] = useState<string[]>([])
   const [appointmentRefresh, setAppointmentRefresh] = useState(0)
-  const [appointmentName, setAppointmentName] = useState('')
-  const [appointmentPhone, setAppointmentPhone] = useState('')
-  const [appointmentEmail, setAppointmentEmail] = useState('')
+  const [, setAppointmentName] = useState('')
+  const [, setAppointmentPhone] = useState('')
+  const [, setAppointmentEmail] = useState('')
   const [appointmentService, setAppointmentService] = useState('')
   const [isAppointmentLoading, setIsAppointmentLoading] = useState(true)
-  const [isAppointmentSubmitting, setIsAppointmentSubmitting] = useState(false)
+  const isAppointmentSubmitting = false
   const [appointmentError, setAppointmentError] = useState('')
-  const [appointmentBooked, setAppointmentBooked] = useState(false)
   const [appointments, setAppointments] = useState<AdminAppointment[]>([])
   const [appointmentsError, setAppointmentsError] = useState(false)
   const [isAdminAppointmentsLoading, setIsAdminAppointmentsLoading] = useState(true)
@@ -270,15 +269,8 @@ function App() {
   const isDraftScheduleValid = isValidSchedule({ hours: draftHours, holidays: draftHolidays })
 
   const startChatBooking = () => {
-    setAppointmentDate(appointmentMinDate)
-    setAppointmentTime('')
-    setAppointmentName('')
-    setAppointmentPhone('')
-    setAppointmentEmail('')
-    setAppointmentService('')
-    setAppointmentError('')
-    setChatBookingStep('service')
-    setChatMessages((messages) => [...messages, { role: 'assistant', content: text.chatBookPrompt }])
+    setChatBookingStep(null)
+    setChatMessages((messages) => [...messages, { role: 'assistant', content: text.appointmentComingSoon }])
   }
 
   const chooseChatBookingService = (service: string, label: string) => {
@@ -421,99 +413,12 @@ function App() {
   }
 
   const reserveAppointment = async (source: 'form' | 'chat') => {
-    if (isAppointmentSubmitting) return
-    setIsAppointmentSubmitting(true)
-    setAppointmentError('')
-
-    try {
-      const response = await fetch('/api/appointment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: appointmentName,
-          phone: appointmentPhone,
-          email: appointmentEmail,
-          service: appointmentService,
-          date: appointmentDate,
-          time: appointmentTime,
-        }),
-      })
-      const result: unknown = await response.json()
-      if (!response.ok) {
-        if (response.status === 409) {
-          if (source === 'chat') {
-            setChatBookingStep('time')
-            setChatMessages((messages) => [...messages, { role: 'assistant', content: text.chatBookingConflict }])
-          } else {
-            setAppointmentError(language === 'ta'
-              ? 'இந்த நேரம் இப்போது கிடைக்கவில்லை. வேறு நேரத்தைத் தேர்வு செய்யுங்கள்.'
-              : 'That time is no longer available. Please choose another time.')
-          }
-          setAppointmentRefresh((value) => value + 1)
-          setIsAppointmentLoading(true)
-          setAppointmentTime('')
-          return
-        }
-        if (response.status === 429) {
-          if (source === 'chat') {
-            setChatMessages((messages) => [...messages, { role: 'assistant', content: text.chatBookingRateLimit }])
-          } else {
-            setAppointmentError(language === 'ta'
-              ? 'பலமுறை முயற்சித்துள்ளீர்கள். சில நிமிடங்கள் கழித்து முயற்சிக்கவும்.'
-              : 'Too many attempts. Please try again in a few minutes.')
-          }
-          return
-        }
-        if (response.status === 503) {
-          if (source === 'chat') {
-            setChatMessages((messages) => [...messages, { role: 'assistant', content: text.chatBookingUnavailable }])
-          } else {
-            setAppointmentError(text.appointmentUnavailable)
-          }
-          return
-        }
-        throw new Error('Appointment request failed.')
-      }
-      if (!result || typeof result !== 'object' || !('appointment' in result)) {
-        throw new Error('Appointment response was invalid.')
-      }
-      const notificationSent = 'notificationSent' in result && result.notificationSent === true
-      setAppointmentBooked(notificationSent)
-      const bookedSlot = formatAppointmentDateTime(`${appointmentDate}T${appointmentTime}`, language)
-      setAppointmentName('')
-      setAppointmentPhone('')
-      setAppointmentEmail('')
-      setAppointmentService('')
-      setAppointmentTime('')
-      setIsAppointmentLoading(true)
-      setAppointmentRefresh((value) => value + 1)
-      if (source === 'chat') {
-        setChatBookingStep(null)
-        setChatMessages((messages) => [
-          ...messages,
-          {
-            role: 'assistant',
-            content: `${text.chatBookingSuccess} ${bookedSlot}.${notificationSent ? '' : ` ${text.appointmentSuccessNotificationPending}`}`,
-          },
-        ])
-      } else if (!notificationSent) {
-        setAppointmentError(text.appointmentSuccessNotificationPending)
-      }
-    } catch (error) {
-      console.error('Appointment booking failed.', error)
-      if (source === 'chat') {
-        setChatMessages((messages) => [...messages, { role: 'assistant', content: text.appointmentFailure }])
-      } else {
-        setAppointmentError(text.appointmentFailure)
-      }
-    } finally {
-      setIsAppointmentSubmitting(false)
+    if (source === 'chat') {
+      setChatBookingStep(null)
+      setChatMessages((messages) => [...messages, { role: 'assistant', content: text.appointmentComingSoon }])
+    } else {
+      setAppointmentError(text.appointmentComingSoon)
     }
-  }
-
-  const handleAppointmentSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    void reserveAppointment('form')
   }
 
   const handleChatSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -846,34 +751,6 @@ function App() {
         <AppointmentPage
           text={text}
           language={language}
-          appointmentMinDate={appointmentMinDate}
-          appointmentMaxDate={appointmentMaxDate}
-          appointmentBooked={appointmentBooked}
-          appointmentError={appointmentError}
-          appointmentName={appointmentName}
-          setAppointmentName={setAppointmentName}
-          appointmentPhone={appointmentPhone}
-          setAppointmentPhone={setAppointmentPhone}
-          appointmentEmail={appointmentEmail}
-          setAppointmentEmail={setAppointmentEmail}
-          appointmentService={appointmentService}
-          setAppointmentService={setAppointmentService}
-          formatServicePrice={formatServicePrice}
-          appointmentDate={appointmentDate}
-          setAppointmentDate={setAppointmentDate}
-          setIsAppointmentLoading={setIsAppointmentLoading}
-          appointmentTime={appointmentTime}
-          setAppointmentTime={setAppointmentTime}
-          setAppointmentBooked={setAppointmentBooked}
-          setAppointmentError={setAppointmentError}
-          isAppointmentLoading={isAppointmentLoading}
-          appointmentSlots={appointmentSlots}
-          formatScheduleTime={formatScheduleTime}
-          isAppointmentSubmitting={isAppointmentSubmitting}
-          handleAppointmentSubmit={handleAppointmentSubmit}
-          formatAppointmentLoadingLabel={text.chatThinking}
-          formatAppointmentNoSlotsLabel={text.appointmentNoSlots}
-          formatAppointmentSelectTimeLabel={text.appointmentSelectTime}
         />
       ) : (
       <>
