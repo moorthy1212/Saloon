@@ -1,5 +1,61 @@
 main {
   overflow: hidden;
+  animation: page-arrive 900ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+body::before {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #c77a5f, #f0d19b, #a0523d);
+  content: '';
+  pointer-events: none;
+  transform: scaleX(var(--scroll-progress, 0));
+  transform-origin: left center;
+  transition: transform 120ms linear;
+}
+
+@keyframes page-arrive {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.scroll-motion-ready .scroll-reveal {
+  opacity: 0;
+  filter: blur(10px);
+  transform: translate3d(0, 64px, 0) scale(0.965);
+  transition:
+    opacity 850ms cubic-bezier(0.2, 0.75, 0.25, 1),
+    filter 850ms cubic-bezier(0.2, 0.75, 0.25, 1),
+    transform 1000ms cubic-bezier(0.2, 0.75, 0.25, 1);
+  will-change: opacity, filter, transform;
+}
+
+.scroll-motion-ready .scroll-reveal.is-in-view {
+  opacity: 1;
+  filter: blur(0);
+  transform: translate3d(0, 0, 0) scale(1);
+  will-change: auto;
+}
+
+.scroll-motion-ready .service-card:nth-child(3n + 2),
+.scroll-motion-ready .resource-link-card:nth-child(2),
+.scroll-motion-ready .info-card:nth-child(3n + 2),
+.scroll-motion-ready .faq-item:nth-child(even) {
+  transition-delay: 100ms;
+}
+
+.scroll-motion-ready .service-card:nth-child(3n),
+.scroll-motion-ready .info-card:nth-child(3n) {
+  transition-delay: 180ms;
 }
 
 .site-header {
@@ -224,6 +280,14 @@ h2 em {
   transform: translateY(-2px);
 }
 
+.button svg {
+  transition: transform 160ms ease;
+}
+
+.button:hover svg {
+  transform: translateX(3px);
+}
+
 .button-dark {
   background: var(--ink);
   color: #fff;
@@ -380,20 +444,26 @@ h2 em {
 .hero-visual {
   position: relative;
   min-height: 570px;
+  overflow: hidden;
+  isolation: isolate;
   background-color: #c6b4a0;
   background-image: url('https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=1400&q=85');
   background-size: cover;
-  background-position: center 49%;
+  background-position: center 42%;
 }
 
 .image-wash {
   position: absolute;
+  z-index: 1;
   inset: 0;
-  background: linear-gradient(180deg, rgb(37 29 23 / 3%) 50%, rgb(37 29 23 / 40%) 100%);
+  background:
+    linear-gradient(180deg, rgb(37 29 23 / 8%) 15%, transparent 48%, rgb(37 29 23 / 54%) 100%),
+    linear-gradient(115deg, rgb(52 31 21 / 10%), transparent 58%);
 }
 
 .availability-card {
   position: absolute;
+  z-index: 2;
   top: 24px;
   left: 24px;
   max-width: calc(100% - 48px);
@@ -443,6 +513,7 @@ h2 em {
 
 .visual-caption {
   position: absolute;
+  z-index: 2;
   bottom: 29px;
   left: 31px;
   display: flex;
@@ -462,6 +533,7 @@ h2 em {
 
 .visual-index {
   position: absolute;
+  z-index: 2;
   right: 30px;
   bottom: 31px;
   color: rgb(255 255 255 / 83%);
@@ -669,6 +741,11 @@ h2 em {
   color: #70442f;
   font-family: var(--serif);
   font-size: 32px;
+  transition: transform 220ms ease;
+}
+
+.service-card:hover .service-symbol {
+  transform: rotate(-6deg) scale(1.05);
 }
 
 .service-symbol svg {
@@ -1190,7 +1267,7 @@ html[lang='ta'] .hours-footnote {
   }
 
   .hero h1 {
-    font-size: clamp(58px, 15vw, 78px);
+    font-size: clamp(36px, 11vw, 58px);
   }
 
   html[lang='ta'] .hero h1 {
@@ -1385,6 +1462,8 @@ html[lang='ta'] .hours-footnote {
   *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
 .admin-page {

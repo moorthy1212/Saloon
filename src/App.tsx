@@ -13,6 +13,27 @@ import type { AdminAppointment, ChatBookingStep, ChatMessage, Language } from '.
 import './App.css'
 
 const LANGUAGE_STORAGE_KEY = 'suburaaj-language'
+const SCROLL_REVEAL_SELECTOR = [
+  '.site-header',
+  '.hero-copy > *',
+  '.hero-visual',
+  '.visit-strip',
+  '.services-section .section-heading',
+  '.service-card',
+  '.resource-links-section .section-heading',
+  '.resource-link-card',
+  '.hours-intro',
+  '.hours-card',
+  '.about-section > *',
+  '.site-footer > *',
+  '.info-page-header',
+  '.info-card',
+  '.style-visual-card',
+  '.faq-item',
+  '.appointment-card',
+  '.admin-page-header',
+  '.admin-page-content',
+].join(', ')
 
 function isAdminAppointment(value: unknown): value is AdminAppointment {
   return typeof value === 'object' && value !== null
@@ -143,6 +164,75 @@ function App() {
   const isAboutRoute = window.location.pathname.replace(/\/+$/, '') === '/about-us'
   const isContactRoute = window.location.pathname.replace(/\/+$/, '') === '/contact-us'
   const status = getShopStatus(now, settings.hours, settings.holidays, language)
+
+  useEffect(() => {
+    const main = document.querySelector<HTMLElement>('main')
+    if (
+      !main
+      || !('IntersectionObserver' in window)
+      || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) return
+
+    const targets = new Set(main.querySelectorAll<HTMLElement>(SCROLL_REVEAL_SELECTOR))
+    main.classList.add('scroll-motion-ready')
+
+    let scrollFrame = 0
+    const updateScrollProgress = () => {
+      if (scrollFrame) return
+      scrollFrame = window.requestAnimationFrame(() => {
+        const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight
+        const progress = scrollableHeight > 0 ? window.scrollY / scrollableHeight : 0
+        document.documentElement.style.setProperty('--scroll-progress', String(progress))
+        scrollFrame = 0
+      })
+    }
+
+    updateScrollProgress()
+    window.addEventListener('scroll', updateScrollProgress, { passive: true })
+    window.addEventListener('resize', updateScrollProgress)
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        entry.target.classList.toggle('is-in-view', entry.isIntersecting)
+      })
+    }, {
+      threshold: 0.14,
+      rootMargin: '0px 0px -7% 0px',
+    })
+
+    const observeTarget = (target: HTMLElement) => {
+      if (targets.has(target)) return
+      targets.add(target)
+      target.classList.add('scroll-reveal')
+      observer.observe(target)
+    }
+
+    targets.forEach((target) => {
+      target.classList.add('scroll-reveal')
+      observer.observe(target)
+    })
+
+    const mutationObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (!(node instanceof HTMLElement)) return
+          if (node.matches(SCROLL_REVEAL_SELECTOR)) observeTarget(node)
+          node.querySelectorAll<HTMLElement>(SCROLL_REVEAL_SELECTOR).forEach(observeTarget)
+        })
+      })
+    })
+    mutationObserver.observe(main, { childList: true, subtree: true })
+
+    return () => {
+      mutationObserver.disconnect()
+      observer.disconnect()
+      window.removeEventListener('scroll', updateScrollProgress)
+      window.removeEventListener('resize', updateScrollProgress)
+      if (scrollFrame) window.cancelAnimationFrame(scrollFrame)
+      document.documentElement.style.removeProperty('--scroll-progress')
+      main.classList.remove('scroll-motion-ready')
+    }
+  }, [])
 
   useEffect(() => {
     fetch('/api/settings')
