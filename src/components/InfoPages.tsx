@@ -175,6 +175,42 @@ export function AboutUsPage({ language }: { language: Language }) {
       },
     ]
 
+  const styleGallery = language === 'ta'
+    ? [
+      {
+        title: 'துல்லியமான வெட்டு',
+        text: 'நீளம், நிறம், மற்றும் முக அமைப்புக்கு ஏற்ற சுத்தமான சில்லு கூர்மையான பாணி.',
+        image: 'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=900&q=80',
+      },
+      {
+        title: 'மென்மையான லேயர்கள்',
+        text: 'சலூன் பாணியில் பளபளப்பான இயக்கம், சீரான உருமாற்றம் மற்றும் பாகுபாடு.',
+        image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=900&q=80',
+      },
+      {
+        title: 'சலூன் ஸ்டைலிங்',
+        text: 'வீட்டில் இயங்க முடியாத, நேர்த்தியான மற்றும் நம்பிக்கையை உயர்த்தும் முடி தோற்றம்.',
+        image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=900&q=80',
+      },
+    ]
+    : [
+      {
+        title: 'Precision cuts',
+        text: 'A clean, customised finish that suits your face shape, styling goals and everyday routine.',
+        image: 'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=900&q=80',
+      },
+      {
+        title: 'Soft layers',
+        text: 'Movement, dimension and effortless polish that feels light, fresh and flattering.',
+        image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=900&q=80',
+      },
+      {
+        title: 'Salon styling',
+        text: 'A polished look designed to boost confidence and leave you ready for any occasion.',
+        image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=900&q=80',
+      },
+    ]
+
   return (
     <section className="info-page">
       <div className="info-page-header">
@@ -185,6 +221,18 @@ export function AboutUsPage({ language }: { language: Language }) {
             ? 'சுபுராஜ் சலூன், பல ஆண்டுகளாக மக்களின் முடி, தோற்றம் மற்றும் நம்பிக்கையை கவனித்து வரும் ஒரு நம்பகமான உள்ளூர் சலூன். நாங்கள் ஒவ்வொரு வாடிக்கையாளருக்கும் தனிப்பட்ட பராமரிப்பு மற்றும் சுத்தமான முடி பராமரிப்பை வழங்குகிறோம்.'
             : 'Suburaaj Salon has been caring for people’s hair, confidence and everyday look for years. We combine experience, talent and a personal approach to help every client feel their best.'}
         </p>
+      </div>
+
+      <div className="about-visual-gallery" aria-label={language === 'ta' ? 'முடி பாணி காட்சிகள்' : 'Hair styling gallery'}>
+        {styleGallery.map(({ title, text, image }) => (
+          <article key={title} className="style-visual-card">
+            <div className="style-visual-image" style={{ backgroundImage: `url(${image})` }} aria-label={title} role="img" />
+            <div className="style-visual-copy">
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </div>
+          </article>
+        ))}
       </div>
 
       <div className="info-grid">

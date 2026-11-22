@@ -37,9 +37,12 @@ export function ServiceIcon({ service }: { service: string }) {
 export function ScissorsIcon() {
   return (
     <svg viewBox="0 0 32 32" aria-hidden="true">
-      <circle cx="8" cy="8" r="4" />
-      <circle cx="8" cy="24" r="4" />
-      <path d="m11 11 17 17M11 21 28 4M14 16l8 0" />
+      <circle cx="8" cy="8" r="4.2" />
+      <circle cx="8" cy="24" r="4.2" />
+      <path d="M11.5 11.5 24 24M11.5 20.5 24 8M13.5 16h8.5" />
+      <path d="M19.5 16 27.5 6.5" />
+      <path d="M19.5 16 27.5 25.5" />
+      <path d="M13.5 16l-3.5 0" />
     </svg>
   )
 }

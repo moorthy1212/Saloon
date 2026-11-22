@@ -5,7 +5,7 @@ import { AppointmentPage } from './components/AppointmentPage'
 import { ChatWidget } from './components/ChatWidget'
 import { AboutUsPage, ContactPage, FaqPage, HaircareAdvicePage } from './components/InfoPages'
 import { ManageAppointmentPage } from './components/ManageAppointmentPage'
-import { AboutSection, OpeningHoursSection, ServiceSection, SiteFooter, VisitStrip } from './components/SiteSections'
+import { AboutSection, OpeningHoursSection, ServiceSection, SiteFooter } from './components/SiteSections'
 import { ArrowIcon, ScissorsIcon } from './components/SalonIcons'
 import { COPY } from './content/copy'
 import { DAY_NAMES, formatAppointmentDateTime, formatHoursRange, formatScheduleTime, getChatFaqAnswer, getLocalDateKey, getServiceLabel, formatServicePrice, getShopStatus, SHOP_TIME_ZONE } from './lib/salon'
@@ -117,7 +117,7 @@ function App() {
   const [appointmentEmail, setAppointmentEmail] = useState('')
   const [appointmentService, setAppointmentService] = useState('')
   const [isAppointmentLoading, setIsAppointmentLoading] = useState(true)
-  const [isAppointmentSubmitting, setIsAppointmentSubmitting] = useState(false)
+  const [isAppointmentSubmitting] = useState(false)
   const [appointmentError, setAppointmentError] = useState('')
   const [appointmentBooked, setAppointmentBooked] = useState(false)
   const [appointments, setAppointments] = useState<AdminAppointment[]>([])
@@ -192,55 +192,66 @@ function App() {
   }, [language])
 
   useEffect(() => {
+    const routePath = window.location.pathname.replace(/\/+$/, '') || '/'
+    const canonicalUrl = `https://suburaaj-salon.pages.dev${routePath === '/' ? '/' : routePath}`
+
     const pageTitle = isAdminRoute
       ? 'Admin | Suburaaj Salon'
       : isAppointmentRoute
-        ? language === 'ta' ? 'முன்பதிவு செய்யுங்கள் | சுபுராஜ் சலூன்' : 'Book an appointment | Suburaaj Salon'
+        ? language === 'ta' ? 'முன்பதிவு செய்யுங்கள் | சுபுராஜ் சலூன்' : 'Book an appointment | Suburaaj Salon | Suburaj Saloon'
         : isManageAppointmentRoute
           ? language === 'ta' ? 'உங்கள் முன்பதிவை நிர்வகிக்கவும் | சுபுராஜ் சலூன்' : 'Manage your appointment | Suburaaj Salon'
           : isHaircareRoute
-            ? language === 'ta' ? 'முடி பராமரிப்பு ஆலோசனை | சுபுராஜ் சலூன்' : 'Haircare advice | Suburaaj Salon'
+            ? language === 'ta' ? 'முடி பராமரிப்பு ஆலோசனை | சுபுராஜ் சலூன்' : 'Haircare advice | Suburaaj Salon | Subu Salon'
             : isFaqRoute
-              ? language === 'ta' ? 'அடிக்கடி கேட்கப்படும் கேள்விகள் | சுபுராஜ் சலூன்' : 'Salon FAQs | Suburaaj Salon'
+              ? language === 'ta' ? 'அடிக்கடி கேட்கப்படும் கேள்விகள் | சுபுராஜ் சலூன்' : 'Salon FAQs | Suburaaj Salon | Suburaj Saloon'
               : isAboutRoute
-                ? language === 'ta' ? 'எங்களைப் பற்றி | சுபுராஜ் சலூன்' : 'About us | Suburaaj Salon'
+                ? language === 'ta' ? 'எங்களைப் பற்றி | சுபுராஜ் சலூன்' : 'About us | Suburaaj Salon | Subu Salon'
                 : isContactRoute
-                  ? language === 'ta' ? 'தொடர்பு கொள்ளுங்கள் | சுபுராஜ் சலூன்' : 'Contact us | Suburaaj Salon'
-                  : 'Suburaaj Saloon | Subu Salon in Palayamkottai, Tirunelveli'
+                  ? language === 'ta' ? 'தொடர்பு கொள்ளுங்கள் | சுபுராஜ் சலூன்' : 'Contact us | Suburaaj Salon | Palayamkottai'
+                  : 'Suburaaj Salon | Suburaj Saloon | Subu Salon in Palayamkottai, Tirunelveli'
     const pageDescription = isAdminRoute
       ? 'Admin dashboard for the Suburaaj Salon booking and scheduling system.'
       : isAppointmentRoute
         ? language === 'ta'
           ? 'பாளையங்கோட்டையில் உள்ள சுபுராஜ் சலூனுக்கு முன்பதிவு செய்யுங்கள். சேவை, தேதி மற்றும் நேரத்தை ஆன்லைனில் தேர்வு செய்யுங்கள்.'
-          : 'Book a salon appointment in Palayamkottai with Suburaaj Salon. Choose your service, date and time online.'
+          : 'Book a salon appointment with Suburaaj Salon, also known as Suburaj Saloon, Suburaja Saloon, and Subu Salon in Palayamkottai, Tirunelveli.'
         : isManageAppointmentRoute
           ? language === 'ta'
             ? 'உள்ள existing சுபுராஜ் சலூன் முன்பதிவை நிர்வகிக்கவும், மீண்டும் நேரத்தை மாற்றவும் அல்லது பாதுகாப்பாக ரத்து செய்யவும்.'
-            : 'Manage an existing Suburaaj Salon appointment, reschedule it or cancel it securely.'
+            : 'Manage your Suburaaj Salon appointment, reschedule or cancel it securely and keep your booking details up to date.'
           : isHaircareRoute
             ? language === 'ta'
               ? 'நேரான, அலைந்த, மடிந்த, கொக்கு-முடி மற்றும் சேதமடைந்த முடிகளுக்கு முடி பராமரிப்பு ஆலோசனைகள்.'
-              : 'Haircare advice for different hair types, including tips for straight, wavy, curly, coily and damaged hair.'
+              : 'Haircare advice for different hair types, including straight, wavy, curly, coily and damaged hair from Suburaaj Salon.'
             : isFaqRoute
               ? language === 'ta'
                 ? 'சேவைகள், விலை, முன்பதிவு, முடி பராமரிப்பு மற்றும் முன்பதிவு ஆதரவைக் குறித்த அடிக்கடி கேட்கப்படும் கேள்விகள்.'
-                : 'Frequently asked questions about salon services, pricing, bookings, haircare and appointment support.'
+                : 'Frequently asked questions about salon services, pricing, bookings, haircare and appointment support at Suburaaj Salon.'
               : isAboutRoute
                 ? language === 'ta'
                   ? 'சுபுராஜ் சலூன் எங்கள் பாணி, அனுபவம் மற்றும் சமூகத்தின் மீது எவ்வாறு அக்கறை காட்டுகிறது என்பதை அறியுங்கள்.'
-                  : 'Learn about the Suburaaj Salon philosophy, experience and personal approach to everyday hair care.'
+                  : 'Learn about Suburaaj Salon, also known as Suburaj Saloon, Suburaja Saloon and Subu Salon, and our personal approach to hair care.'
                 : isContactRoute
                   ? language === 'ta'
                     ? 'சலூன் தொடர்பான கேள்விகள், வருகை விபரங்கள் மற்றும் முன்பதிவு உதவிக்கு எங்களைத் தொடர்பு கொள்ளுங்கள்.'
-                    : 'Get in touch with the salon for appointments, directions and service questions.'
-                  : 'Suburaaj Salon in Palayamkottai, Tirunelveli offers haircuts, styling, color services and local salon care.'
+                    : 'Get in touch with Suburaaj Salon in Palayamkottai for appointments, directions and service questions.'
+                  : 'Suburaaj Salon is a trusted salon near me in Palayamkottai, Tirunelveli for haircuts, styling, colour services and local salon care.'
 
     document.title = pageTitle
     document.querySelector<HTMLMetaElement>('meta[name="description"]')?.setAttribute('content', pageDescription)
+    document.querySelector<HTMLMetaElement>('meta[name="keywords"]')?.setAttribute(
+      'content',
+      'Suburaaj Salon, Suburaj Saloon, Suburaja Saloon, Subu Salon, Suburaaj Saloon, Subu saloon, hair salon in Palayamkottai, Tirunelveli salon, salon in Tirunelveli',
+    )
     document.querySelector<HTMLMetaElement>('meta[name="robots"]')?.setAttribute(
       'content',
-      isAdminRoute || isAppointmentRoute || isManageAppointmentRoute || isHaircareRoute || isFaqRoute || isAboutRoute || isContactRoute ? 'noindex, nofollow' : 'index, follow, max-image-preview:large',
+      isAdminRoute || isManageAppointmentRoute ? 'noindex, nofollow' : 'index, follow, max-image-preview:large',
     )
+    document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.setAttribute('href', canonicalUrl)
+    document.querySelector<HTMLMetaElement>('meta[property="og:title"]')?.setAttribute('content', pageTitle)
+    document.querySelector<HTMLMetaElement>('meta[property="og:description"]')?.setAttribute('content', pageDescription)
+    document.querySelector<HTMLMetaElement>('meta[property="og:url"]')?.setAttribute('content', canonicalUrl)
   }, [isAboutRoute, isAdminRoute, isAppointmentRoute, isContactRoute, isFaqRoute, isHaircareRoute, isManageAppointmentRoute, language])
 
   useEffect(() => {
@@ -360,13 +371,6 @@ function App() {
     return () => window.clearInterval(timer)
   }, [])
 
-  const currentTime = new Intl.DateTimeFormat('en-IN', {
-    timeZone: SHOP_TIME_ZONE,
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(now)
-
-  const todayHours = settings.hours[status.todayIndex]
   const appointmentMinDate = getLocalDateKey(now, SHOP_TIME_ZONE)
   const appointmentMaxDate = (() => {
     const lastDay = new Date(`${appointmentMinDate}T12:00:00.000Z`)
@@ -376,15 +380,11 @@ function App() {
   const isDraftScheduleValid = isValidSchedule({ hours: draftHours, holidays: draftHolidays })
 
   const startChatBooking = () => {
-    setAppointmentDate(appointmentMinDate)
-    setAppointmentTime('')
-    setAppointmentName('')
-    setAppointmentPhone('')
-    setAppointmentEmail('')
-    setAppointmentService('')
-    setAppointmentError('')
-    setChatBookingStep('service')
-    setChatMessages((messages) => [...messages, { role: 'assistant', content: text.chatBookPrompt }])
+    setChatBookingStep(null)
+    setChatMessages((messages) => [
+      ...messages,
+      { role: 'assistant', content: text.appointmentComingSoon },
+    ])
   }
 
   const chooseChatBookingService = (service: string, label: string) => {
@@ -527,93 +527,14 @@ function App() {
   }
 
   const reserveAppointment = async (source: 'form' | 'chat') => {
-    if (isAppointmentSubmitting) return
-    setIsAppointmentSubmitting(true)
-    setAppointmentError('')
-
-    try {
-      const response = await fetch('/api/appointment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: appointmentName,
-          phone: appointmentPhone,
-          email: appointmentEmail,
-          service: appointmentService,
-          date: appointmentDate,
-          time: appointmentTime,
-        }),
-      })
-      const result: unknown = await response.json()
-      if (!response.ok) {
-        if (response.status === 409) {
-          if (source === 'chat') {
-            setChatBookingStep('time')
-            setChatMessages((messages) => [...messages, { role: 'assistant', content: text.chatBookingConflict }])
-          } else {
-            setAppointmentError(language === 'ta'
-              ? 'இந்த நேரம் இப்போது கிடைக்கவில்லை. வேறு நேரத்தைத் தேர்வு செய்யுங்கள்.'
-              : 'That time is no longer available. Please choose another time.')
-          }
-          setAppointmentRefresh((value) => value + 1)
-          setIsAppointmentLoading(true)
-          setAppointmentTime('')
-          return
-        }
-        if (response.status === 429) {
-          if (source === 'chat') {
-            setChatMessages((messages) => [...messages, { role: 'assistant', content: text.chatBookingRateLimit }])
-          } else {
-            setAppointmentError(language === 'ta'
-              ? 'பலமுறை முயற்சித்துள்ளீர்கள். சில நிமிடங்கள் கழித்து முயற்சிக்கவும்.'
-              : 'Too many attempts. Please try again in a few minutes.')
-          }
-          return
-        }
-        if (response.status === 503) {
-          if (source === 'chat') {
-            setChatMessages((messages) => [...messages, { role: 'assistant', content: text.chatBookingUnavailable }])
-          } else {
-            setAppointmentError(text.appointmentUnavailable)
-          }
-          return
-        }
-        throw new Error('Appointment request failed.')
-      }
-      if (!result || typeof result !== 'object' || !('appointment' in result)) {
-        throw new Error('Appointment response was invalid.')
-      }
-      const notificationSent = 'notificationSent' in result && result.notificationSent === true
-      setAppointmentBooked(notificationSent)
-      const bookedSlot = formatAppointmentDateTime(`${appointmentDate}T${appointmentTime}`, language)
-      setAppointmentName('')
-      setAppointmentPhone('')
-      setAppointmentEmail('')
-      setAppointmentService('')
-      setAppointmentTime('')
-      setIsAppointmentLoading(true)
-      setAppointmentRefresh((value) => value + 1)
-      if (source === 'chat') {
-        setChatBookingStep(null)
-        setChatMessages((messages) => [
-          ...messages,
-          {
-            role: 'assistant',
-            content: `${text.chatBookingSuccess} ${bookedSlot}.${notificationSent ? '' : ` ${text.appointmentSuccessNotificationPending}`}`,
-          },
-        ])
-      } else if (!notificationSent) {
-        setAppointmentError(text.appointmentSuccessNotificationPending)
-      }
-    } catch (error) {
-      console.error('Appointment booking failed.', error)
-      if (source === 'chat') {
-        setChatMessages((messages) => [...messages, { role: 'assistant', content: text.appointmentFailure }])
-      } else {
-        setAppointmentError(text.appointmentFailure)
-      }
-    } finally {
-      setIsAppointmentSubmitting(false)
+    if (source === 'chat') {
+      setChatBookingStep(null)
+      setChatMessages((messages) => [
+        ...messages,
+        { role: 'assistant', content: text.appointmentComingSoon },
+      ])
+    } else {
+      setAppointmentError(text.appointmentComingSoon)
     }
   }
 
@@ -1323,14 +1244,6 @@ function App() {
           <span className="visual-index">01 / 03</span>
         </div>
       </section>
-
-      <VisitStrip
-        text={text}
-        status={status}
-        currentTime={currentTime}
-        todayHours={todayHours}
-        formatHoursRange={formatHoursRange}
-      />
 
       <ServiceSection text={text} language={language} />
 
